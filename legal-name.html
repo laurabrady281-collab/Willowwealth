@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm your legal name | WillowWealth</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .onboarding-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        .onboarding-left {
+            flex: 1;
+            background-color: #002e30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .onboarding-left .wave-graphic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+        }
+        .onboarding-right {
+            flex: 1;
+            background-color: #fff;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+        .onboarding-header {
+            margin-bottom: 80px;
+        }
+        .onboarding-content {
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .onboarding-content h1 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a2b23;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .onboarding-content p {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .legal-name-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-size: 14px;
+            color: #64748b;
+        }
+        .input-group input {
+            height: 56px;
+            padding: 0 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #002e30;
+        }
+        .btn-continue {
+            height: 56px;
+            background-color: #002e30;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: opacity 0.2s;
+        }
+        .btn-continue:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .why-ask {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #64748b;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .onboarding-left {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="onboarding-page">
+    <div class="onboarding-layout">
+        <div class="onboarding-left">
+            <!-- Wave graphic placeholder -->
+            <svg class="wave-graphic" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 600V400C150 350 300 450 450 400C600 350 750 250 800 200V600H0Z" fill="#A3EBB1" fill-opacity="0.1"/>
+                <path d="M0 600V300C200 250 400 350 600 300C700 275 750 225 800 150V600H0Z" fill="#A3EBB1" fill-opacity="0.2"/>
+            </svg>
+        </div>
+        <div class="onboarding-right">
+            <header class="onboarding-header">
+                <img src="images/auth/logo.svg" alt="WillowWealth" style="height: 24px;">
+            </header>
+            
+            <main class="onboarding-content">
+                <div class="verification-banner" style="background: #fff8eb; border: 1px solid #ffe4b3; padding: 12px; border-radius: 4px; margin-bottom: 40px; font-size: 14px; color: #856404;">
+                    Your email address needs verification. Check your inbox to verify your email address. <a href="#" style="color: #856404; text-decoration: underline;">Resend verification</a>.
+                </div>
+
+                <h1>First, please confirm your legal name</h1>
+                <p>The name you enter should match what's listed on documents such as your driver's license</p>
+                
+                <form class="legal-name-form" id="legal-name-form">
+                    <div class="input-group">
+                        <label for="first-name">Legal first name</label>
+                        <input type="text" id="first-name" required placeholder=" ">
+                    </div>
+                    <div class="input-group">
+                        <label for="last-name">Legal last name</label>
+                        <input type="text" id="last-name" required placeholder=" ">
+                    </div>
+                    <button type="submit" class="btn-continue" id="continue-btn" disabled>Continue</button>
+                    <div class="why-ask">Why do we ask for this information? ⓘ</div>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('legal-name-form');
+        const firstName = document.getElementById('first-name');
+        const lastName = document.getElementById('last-name');
+        const continueBtn = document.getElementById('continue-btn');
+
+        function validateForm() {
+            if (firstName.value.trim() !== '' && lastName.value.trim() !== '') {
+                continueBtn.disabled = false;
+            } else {
+                continueBtn.disabled = true;
+            }
+        }
+
+        firstName.addEventListener('input', validateForm);
+        lastName.addEventListener('input', validateForm);
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Redirect to next onboarding step (e.g., mobile phone)
+            window.location.href = 'index.html'; 
+        });
+    </script>
+</body>
+</html>
