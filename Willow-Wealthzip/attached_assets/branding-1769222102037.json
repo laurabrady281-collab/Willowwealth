@@ -1,0 +1,88 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Arial",
+      "count": 68
+    },
+    {
+      "family": "Linik Sans",
+      "count": 65
+    },
+    {
+      "family": "sans-serif",
+      "count": 65
+    }
+  ],
+  "colors": {
+    "primary": "#335859",
+    "accent": "#002E30",
+    "background": "#E6EDED",
+    "textPrimary": "#002E30",
+    "link": "#002E30"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Linik Sans",
+      "heading": "Linik Sans"
+    },
+    "fontStacks": {
+      "body": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ],
+      "heading": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "52px",
+      "h2": "42px",
+      "body": "16px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "16px"
+  },
+  "components": {},
+  "images": {
+    "logo": "File saved at: attached_assets/logo.svg",
+    "favicon": "https://www.willowwealth.com/favicon.ico",
+    "ogImage": "https://www.willowwealth.com/gatsby-assets/static/willowwealth-og-69f11995ac709e8e0f61d5c335938e4c.png"
+  },
+  "__framework_hints": [
+    "Gatsby 4.18.2"
+  ],
+  "__llm_logo_reasoning": {
+    "selectedIndex": 0,
+    "reasoning": "Strong indicators: links to homepage, visible, top-left position, highest logo on page, alt matches logo/brand, class contains logo, alt contains brand name \"Willow Wealth\", reasonable size, body location without header (penalty). Score: 92 (clear winner by 92 points)",
+    "confidence": 0.9
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "secondary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "confidence": 0
+  },
+  "confidence": {
+    "buttons": 0,
+    "colors": 0,
+    "overall": 0
+  }
+}

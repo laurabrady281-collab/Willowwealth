@@ -2,5 +2,8 @@ run = "cowsay Configure me!"
 entrypoint = "README.md"
 
 [nix]
-channel = "stable-24_05"
-packages = ["cowsay"]
+channel = "stable-24_11"
+packages = ["cowsay", "unzip"]
+
+[agent]
+expertMode = true

@@ -1,0 +1,100 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Arial",
+      "count": 59
+    },
+    {
+      "family": "Linik Sans",
+      "count": 58
+    },
+    {
+      "family": "sans-serif",
+      "count": 58
+    }
+  ],
+  "colors": {
+    "primary": "#335859",
+    "accent": "#013536",
+    "background": "#FFFFFF",
+    "textPrimary": "#013536",
+    "link": "#013536"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Linik Sans",
+      "heading": "Linik Sans"
+    },
+    "fontStacks": {
+      "body": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ],
+      "heading": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "34px",
+      "h2": "34px",
+      "body": "14px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "6px"
+  },
+  "components": {
+    "input": {
+      "background": "transparent",
+      "textColor": "#030303",
+      "borderColor": null,
+      "borderRadius": "0px",
+      "borderRadiusCorners": {
+        "topLeft": "0px",
+        "topRight": "0px",
+        "bottomRight": "0px",
+        "bottomLeft": "0px"
+      },
+      "shadow": "none"
+    }
+  },
+  "images": {
+    "logo": "File saved at: attached_assets/logo.svg",
+    "favicon": "https://www.willowwealth.com/favicon.ico",
+    "ogImage": "File saved at: attached_assets/ogImage.png"
+  },
+  "__framework_hints": [],
+  "__llm_logo_reasoning": {
+    "selectedIndex": 0,
+    "reasoning": "Strong indicators: links to homepage, visible, top-left position, highest logo on page, alt matches logo/brand, src contains logo, reasonable size, body location without header (penalty). Score: 80 (clear winner by 80 points)",
+    "confidence": 0.9
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "secondary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "confidence": 0
+  },
+  "confidence": {
+    "buttons": 0,
+    "colors": 0,
+    "overall": 0
+  }
+}
