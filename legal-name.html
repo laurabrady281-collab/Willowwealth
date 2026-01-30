@@ -32,6 +32,7 @@
             padding: 40px;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
         .onboarding-header {
             margin-bottom: 80px;
@@ -58,35 +59,49 @@
         .legal-name-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .floating-group {
+            position: relative;
+            margin-bottom: 8px;
         }
-        .input-group label {
-            font-size: 14px;
-            color: #64748b;
-        }
-        .input-group input {
-            height: 56px;
-            padding: 0 16px;
+        .floating-group input {
+            width: 100%;
+            height: 64px;
+            padding: 24px 16px 8px;
             border: 1px solid #e2e8f0;
             border-radius: 4px;
             font-size: 16px;
+            background: #fff;
             outline: none;
             transition: border-color 0.2s;
+            box-sizing: border-box;
+            color: #1a2b23;
         }
-        .input-group input:focus {
+        .floating-group label {
+            position: absolute;
+            left: 16px;
+            top: 20px;
+            color: #6B7280;
+            font-size: 16px;
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+        .floating-group input:focus {
             border-color: #002e30;
+        }
+        .floating-group input:focus + label,
+        .floating-group input:not(:placeholder-shown) + label {
+            top: 8px;
+            font-size: 12px;
+            color: #6B7280;
         }
         .btn-continue {
             height: 56px;
             background-color: #002e30;
             color: #fff;
             border: none;
-            border-radius: 4px;
+            border-radius: 50px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -104,6 +119,36 @@
             color: #64748b;
             cursor: pointer;
         }
+        
+        .verification-banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #fff8eb;
+            border-bottom: 1px solid #ffe4b3;
+            padding: 12px 24px;
+            font-size: 14px;
+            color: #856404;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            z-index: 10;
+        }
+        .banner-icon {
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .banner-text {
+            line-height: 1.4;
+        }
+        .resend-link {
+            color: #856404;
+            text-decoration: underline;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
         @media (max-width: 768px) {
             .onboarding-left {
                 display: none;
@@ -121,26 +166,31 @@
             </svg>
         </div>
         <div class="onboarding-right">
+            <div class="verification-banner" id="verify-banner">
+                <div class="banner-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div class="banner-text">
+                    Your email address needs verification. Check your inbox to verify your email address. This is required to create an investor account. Don’t see the email? <span class="resend-link" id="resend-btn">Resend verification.</span>
+                </div>
+            </div>
+
             <header class="onboarding-header">
                 <img src="images/auth/logo.svg" alt="WillowWealth" style="height: 24px;">
             </header>
             
             <main class="onboarding-content">
-                <div class="verification-banner" style="background: #fff8eb; border: 1px solid #ffe4b3; padding: 12px; border-radius: 4px; margin-bottom: 40px; font-size: 14px; color: #856404;">
-                    Your email address needs verification. Check your inbox to verify your email address. <a href="#" style="color: #856404; text-decoration: underline;">Resend verification</a>.
-                </div>
-
                 <h1>First, please confirm your legal name</h1>
                 <p>The name you enter should match what's listed on documents such as your driver's license</p>
                 
                 <form class="legal-name-form" id="legal-name-form">
-                    <div class="input-group">
-                        <label for="first-name">Legal first name</label>
+                    <div class="floating-group">
                         <input type="text" id="first-name" required placeholder=" ">
+                        <label for="first-name">Legal first name</label>
                     </div>
-                    <div class="input-group">
-                        <label for="last-name">Legal last name</label>
+                    <div class="floating-group">
                         <input type="text" id="last-name" required placeholder=" ">
+                        <label for="last-name">Legal last name</label>
                     </div>
                     <button type="submit" class="btn-continue" id="continue-btn" disabled>Continue</button>
                     <div class="why-ask">Why do we ask for this information? ⓘ</div>
@@ -154,6 +204,19 @@
         const firstName = document.getElementById('first-name');
         const lastName = document.getElementById('last-name');
         const continueBtn = document.getElementById('continue-btn');
+        const verifyBanner = document.getElementById('verify-banner');
+        const resendBtn = document.getElementById('resend-btn');
+
+        // Logic for hiding banner (simulated verification)
+        if (localStorage.getItem('emailVerified') === 'true') {
+            verifyBanner.style.display = 'none';
+        }
+
+        resendBtn.addEventListener('click', () => {
+            alert('Verification email sent! Click OK to simulate verification.');
+            localStorage.setItem('emailVerified', 'true');
+            verifyBanner.style.display = 'none';
+        });
 
         function validateForm() {
             if (firstName.value.trim() !== '' && lastName.value.trim() !== '') {
