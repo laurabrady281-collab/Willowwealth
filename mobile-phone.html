@@ -38,57 +38,147 @@
             flex-direction: column;
             gap: 24px;
         }
-        .phone-input-container {
+        
+        .floating-group {
             position: relative;
+            margin-bottom: 8px;
             display: flex;
-            align-items: center;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 8px 0;
+            align-items: flex-end;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 0 16px;
+            background: #fff;
+            height: 64px;
+            box-sizing: border-box;
         }
-        .phone-label {
-            position: absolute;
-            top: -12px;
-            left: 0;
-            font-size: 12px;
-            color: #64748b;
-        }
-        .flag-prefix {
+        
+        .country-select-container {
             display: flex;
             align-items: center;
             gap: 8px;
+            padding-bottom: 12px;
+            cursor: pointer;
+            border-right: 1px solid #e2e8f0;
             margin-right: 12px;
-            font-size: 16px;
-            color: #1a2b23;
+            padding-right: 12px;
+            position: relative;
         }
+        
         .flag-icon {
             width: 20px;
             height: 15px;
-            background: #eee;
-            border: 1px solid #ddd;
+            object-fit: cover;
         }
-        .phone-input-container input {
+        
+        .country-code {
+            font-size: 16px;
+            color: #1a2b23;
+            font-weight: 500;
+        }
+        
+        .phone-input-wrapper {
             flex: 1;
+            position: relative;
+            height: 100%;
+        }
+        
+        .phone-input-wrapper input {
+            width: 100%;
+            height: 100%;
+            padding: 24px 0 8px;
             border: none;
             outline: none;
-            font-size: 18px;
-            color: #1a2b23;
+            font-size: 16px;
             background: transparent;
+            box-sizing: border-box;
+            color: #1a2b23;
         }
+        
+        .phone-input-wrapper label {
+            position: absolute;
+            left: 0;
+            top: 20px;
+            color: #6B7280;
+            font-size: 16px;
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+        
+        .phone-input-wrapper input:focus + label,
+        .phone-input-wrapper input:not(:placeholder-shown) + label {
+            top: 8px;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        
+        .country-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 300px;
+            max-height: 300px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            margin-top: 8px;
+        }
+        
+        .country-dropdown.active {
+            display: flex;
+        }
+        
+        .search-box {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .country-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .country-item {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .country-item:hover {
+            background: #f8fafc;
+        }
+        
         .btn-continue {
             height: 56px;
-            background-color: #a3ebb1;
-            color: #002e30;
+            background-color: #002e30;
+            color: #fff;
             border: none;
-            border-radius: 28px;
+            border-radius: 50px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: opacity 0.2s;
         }
+        
         .btn-continue:disabled {
-            opacity: 0.5;
+            opacity: 0.3;
             cursor: not-allowed;
         }
+        
         .why-ask {
             text-align: center;
             margin-top: 24px;
@@ -96,6 +186,7 @@
             color: #64748b;
             cursor: pointer;
         }
+        
         .secure-footer {
             margin-top: 80px;
             display: flex;
@@ -106,7 +197,9 @@
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-align: center;
         }
+        
         .secure-icon {
             width: 32px;
             height: 32px;
@@ -130,13 +223,25 @@
             <p>Please provide a valid U.S. mobile number. Your number will also be used to setup two-factor authorization later.</p>
             
             <form class="phone-form" id="phone-form">
-                <div class="phone-input-container">
-                    <span class="phone-label">Phone number *</span>
-                    <div class="flag-prefix">
-                        <img src="https://flagcdn.com/w20/us.png" alt="US" class="flag-icon">
-                        <span>+1</span>
+                <div class="floating-group">
+                    <div class="country-select-container" id="country-select">
+                        <img src="https://flagcdn.com/w20/us.png" alt="US" class="flag-icon" id="current-flag">
+                        <span class="country-code" id="current-code">+1</span>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style="margin-left: 4px;"><path d="M1 1L5 5L9 1" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        
+                        <div class="country-dropdown" id="country-dropdown">
+                            <div class="search-box">
+                                <input type="text" id="country-search" placeholder="Search country...">
+                            </div>
+                            <div class="country-list" id="country-list">
+                                <!-- Countries populated by JS -->
+                            </div>
+                        </div>
                     </div>
-                    <input type="tel" id="phone-number" placeholder="512 686 6045" required>
+                    <div class="phone-input-wrapper">
+                        <input type="tel" id="phone-number" placeholder=" " required>
+                        <label for="phone-number">Mobile number</label>
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn-continue" id="continue-btn" disabled>Continue</button>
@@ -154,23 +259,73 @@
     </div>
 
     <script>
+        const countries = [
+            { name: 'United States', code: '+1', flag: 'us' },
+            { name: 'United Kingdom', code: '+44', flag: 'gb' },
+            { name: 'Canada', code: '+1', flag: 'ca' },
+            { name: 'Australia', code: '+61', flag: 'au' },
+            { name: 'Germany', code: '+49', flag: 'de' },
+            { name: 'France', code: '+33', flag: 'fr' },
+            { name: 'India', code: '+91', flag: 'in' },
+            { name: 'China', code: '+86', flag: 'cn' },
+            { name: 'Japan', code: '+81', flag: 'jp' },
+            { name: 'Brazil', code: '+55', flag: 'br' }
+        ];
+
+        const countrySelect = document.getElementById('country-select');
+        const countryDropdown = document.getElementById('country-dropdown');
+        const countryList = document.getElementById('country-list');
+        const countrySearch = document.getElementById('country-search');
+        const currentFlag = document.getElementById('current-flag');
+        const currentCode = document.getElementById('current-code');
         const phoneInput = document.getElementById('phone-number');
         const continueBtn = document.getElementById('continue-btn');
 
-        phoneInput.addEventListener('input', (e) => {
-            // Basic validation for length
-            const val = e.target.value.replace(/\D/g, '');
-            if (val.length >= 10) {
-                continueBtn.disabled = false;
-            } else {
-                continueBtn.disabled = true;
+        function populateCountries(filter = '') {
+            countryList.innerHTML = '';
+            countries
+                .filter(c => c.name.toLowerCase().includes(filter.toLowerCase()))
+                .forEach(country => {
+                    const item = document.createElement('div');
+                    item.className = 'country-item';
+                    item.innerHTML = `
+                        <img src="https://flagcdn.com/w20/${country.flag}.png" alt="${country.name}" class="flag-icon">
+                        <span>${country.name} (${country.code})</span>
+                    `;
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        currentFlag.src = `https://flagcdn.com/w20/${country.flag}.png`;
+                        currentCode.textContent = country.code;
+                        countryDropdown.classList.remove('active');
+                    };
+                    countryList.appendChild(item);
+                });
+        }
+
+        countrySelect.onclick = (e) => {
+            e.stopPropagation();
+            countryDropdown.classList.toggle('active');
+            if (countryDropdown.classList.contains('active')) {
+                countrySearch.focus();
             }
+        };
+
+        countrySearch.onclick = (e) => e.stopPropagation();
+        countrySearch.oninput = (e) => populateCountries(e.target.value);
+
+        document.onclick = () => countryDropdown.classList.remove('active');
+
+        phoneInput.addEventListener('input', (e) => {
+            const val = e.target.value.replace(/\D/g, '');
+            continueBtn.disabled = val.length < 8;
         });
 
         document.getElementById('phone-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            window.location.href = 'index.html'; // Or next step
+            window.location.href = 'index.html';
         });
+
+        populateCountries();
     </script>
 </body>
 </html>
