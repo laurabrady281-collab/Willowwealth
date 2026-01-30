@@ -97,12 +97,28 @@
     <script>
         const signupForm = document.getElementById('signup-form');
         if (signupForm) {
-            signupForm.addEventListener('submit', (e) => {
+            signupForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                // Trigger simulated verification link
-                localStorage.setItem('verificationPending', 'true');
-                console.log('Verification link sent to email...');
-                window.location.href = 'legal-name.html';
+                const email = document.getElementById('email').value;
+                
+                try {
+                    const response = await fetch('/send-verification', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        localStorage.setItem('verificationPending', 'true');
+                        window.location.href = 'legal-name.html';
+                    } else {
+                        alert('Failed to send verification email: ' + result.error);
+                    }
+                } catch (error) {
+                    alert('An error occurred while sending the verification email.');
+                    console.error(error);
+                }
             });
         }
     </script>
