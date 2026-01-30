@@ -1,0 +1,29 @@
+START BY REFERENCING AND MATCHING THE ATTACHED FILE AS THE BASELINE DESIGN AND BEHAVIOR. THEN APPLY THE FOLLOWING CHANGES ONLY:
+
+UPDATE THE “READ FULL DISCLOSURE” SECTION UI BEHAVIOR AND VISUAL STATE AS FOLLOWS:
+
+Before interaction (collapsed state):
+• The “Read full disclosure” text must appear visually recessed and partially hidden, as if the content is positioned behind the dropdown/chevron arrow.
+• Only the “Read full disclosure” label should be clearly readable.
+• The disclosure content below it should be subtly visible but clipped, creating a layered effect (e.g., content masked by the container with overflow hidden).
+• Use a soft gradient fade or shadow at the bottom of the collapsed container to indicate hidden content underneath.
+• The dropdown arrow (chevron) should visually sit above the hidden content layer, reinforcing that content exists behind it.
+• Cursor interaction should clearly indicate the area is expandable.
+
+On click (expanded state):
+• The dropdown arrow should animate smoothly (rotate or flip).
+• The container should expand downward to fully reveal the entire disclosure text with no truncation.
+• Remove all masking, clipping, fade, or overflow restrictions when expanded.
+• The expanded content must be fully readable and scroll-free.
+• Replace the toggle label with:
+  ^
+  Collapse disclosure
+• Display the “^ Collapse disclosure” control centered below the fully expanded disclosure content, matching the reference design.
+
+Technical guidance:
+• Use a container with fixed max-height and overflow: hidden in the collapsed state.
+• Apply a gradient mask or pseudo-element overlay to suggest hidden content.
+• Transition max-height and opacity for a smooth open/close animation.
+• Ensure accessibility: keyboard navigable, ARIA-expanded toggled correctly, and no content is hidden from screen readers when expanded.
+
+Do not change typography, font size, colors, or spacing outside of what is necessary to achieve the layered “content-behind-chevron” visual effect.
