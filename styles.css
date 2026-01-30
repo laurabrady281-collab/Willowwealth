@@ -89,7 +89,8 @@ body {
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    margin-top: 8px;
+    margin-top: 0;
+    padding-top: 24px;
 }
 
 .dropdown:hover .dropdown-menu {
