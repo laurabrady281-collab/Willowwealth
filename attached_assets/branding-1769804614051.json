@@ -1,0 +1,138 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Arial",
+      "role": "body"
+    },
+    {
+      "family": "Linik Sans",
+      "role": "heading"
+    }
+  ],
+  "colors": {
+    "primary": "#002E30",
+    "accent": "#DFFA46",
+    "background": "#FFFFFF",
+    "textPrimary": "#182828",
+    "link": "#182828"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Arial",
+      "heading": "Linik Sans"
+    },
+    "fontStacks": {
+      "heading": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ],
+      "body": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "46px",
+      "h2": "42px",
+      "body": "16px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "12px"
+  },
+  "components": {
+    "buttonPrimary": {
+      "background": "#DFFA46",
+      "textColor": "#002E30",
+      "borderRadius": "240px",
+      "borderRadiusCorners": {
+        "topLeft": "240px",
+        "topRight": "240px",
+        "bottomRight": "240px",
+        "bottomLeft": "240px"
+      },
+      "shadow": "none"
+    },
+    "buttonSecondary": {
+      "background": "#E6F0F6",
+      "textColor": "#002E30",
+      "borderColor": "#0C2B2C",
+      "borderRadius": "240px",
+      "borderRadiusCorners": {
+        "topLeft": "240px",
+        "topRight": "240px",
+        "bottomRight": "240px",
+        "bottomLeft": "240px"
+      },
+      "shadow": "none"
+    }
+  },
+  "images": {
+    "logo": "File saved at: attached_assets/logo.svg",
+    "favicon": "https://www.willowwealth.com/favicon.ico",
+    "ogImage": "File saved at: attached_assets/ogImage.png",
+    "logoHref": "File saved at: attached_assets/logoHref.html",
+    "logoAlt": "Willow Wealth logo"
+  },
+  "__framework_hints": [
+    "Gatsby 4.18.2"
+  ],
+  "__llm_logo_reasoning": {
+    "selectedIndex": 0,
+    "reasoning": "Selected #0 because it is visible, medium-sized, and located at the top of the page, matching the brand name 'Willow Wealth'.",
+    "confidence": 0.9,
+    "source": "llm"
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": 2,
+      "text": "Get started",
+      "reasoning": "Button #2 with text 'Get started' uses a vibrant green color (#DFFA46), which stands out as the primary call-to-action due to its bright and engaging appearance, typical for primary CTAs."
+    },
+    "secondary": {
+      "index": 5,
+      "text": "Diversify today",
+      "reasoning": "Button #5 with text 'Diversify today' uses a subtle blue color (#E6F0F6), making it a suitable secondary CTA as it contrasts with the primary button's vibrant green."
+    },
+    "confidence": 0.95
+  },
+  "personality": {
+    "tone": "professional",
+    "energy": "medium",
+    "targetAudience": "investors and financial planners"
+  },
+  "designSystem": {
+    "framework": "material",
+    "componentLibrary": ""
+  },
+  "confidence": {
+    "buttons": 0.95,
+    "colors": 0.9,
+    "overall": 0.925
+  },
+  "__llm_metadata": {
+    "logoSelection": {
+      "llmCalled": true,
+      "llmSucceeded": true,
+      "finalSource": "llm",
+      "rawLogoSelection": {
+        "selectedLogoIndex": 0,
+        "selectedLogoReasoning": "Selected #0 because it is visible, medium-sized, and located at the top of the page, matching the brand name 'Willow Wealth'.",
+        "confidence": 0.9
+      }
+    },
+    "buttonClassification": {
+      "llmCalled": true,
+      "llmSucceeded": true
+    }
+  }
+}
