@@ -99,6 +99,9 @@
         if (signupForm) {
             signupForm.addEventListener('submit', (e) => {
                 e.preventDefault();
+                // Trigger simulated verification link
+                localStorage.setItem('verificationPending', 'true');
+                console.log('Verification link sent to email...');
                 window.location.href = 'legal-name.html';
             });
         }
