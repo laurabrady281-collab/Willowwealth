@@ -35,7 +35,7 @@
                         <span>or</span>
                     </div>
                     
-                    <form class="signup-email-form">
+                    <form class="signup-email-form" id="signup-form">
                         <div class="floating-group">
                             <input type="email" id="email" placeholder=" " required>
                             <label for="email">Email address</label>
@@ -94,5 +94,14 @@
             </div>
         </div>
     </div>
+    <script>
+        const signupForm = document.getElementById('signup-form');
+        if (signupForm) {
+            signupForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                window.location.href = 'legal-name.html';
+            });
+        }
+    </script>
 </body>
 </html>
