@@ -1,0 +1,13 @@
+{
+  "name": "willowwealth-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static WillowWealth site served via Node for Emergent supervisor frontend process.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.13"
+  }
+}
