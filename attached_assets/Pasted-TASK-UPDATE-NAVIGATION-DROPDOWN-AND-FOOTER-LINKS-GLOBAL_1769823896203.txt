@@ -1,0 +1,60 @@
+TASK: UPDATE NAVIGATION, DROPDOWN, AND FOOTER LINKS
+
+GLOBAL RULES (DO NOT VIOLATE):
+- Open ALL updated links in a NEW TAB (e.g., target="_blank", rel="noopener noreferrer")
+- DO NOT change any label text, copy, styling, spacing, layout, components, or structure
+- ONLY update destination URLs and link behavior
+- Apply changes consistently across desktop and mobile navigation, dropdowns, and footers
+
+--------------------------------
+TOP NAVIGATION
+--------------------------------
+- “Why private markets” → https://www.willowwealth.com/why-private-markets
+- “How it works” → https://www.willowwealth.com/how-it-works
+- “Learn” → https://www.willowwealth.com/articles
+- “Help center” → https://www.willowwealth.com/support
+
+--------------------------------
+PRODUCTS DROPDOWN
+--------------------------------
+Managed portfolios
+- “Let us manage your private markets portfolio” button
+  → https://www.willowwealth.com/360
+
+Direct investments
+- “Browse available investments” button
+  → https://www.willowwealth.com/direct-investing
+
+Retirement
+- “Add private markets to an IRA” button
+  → https://www.willowwealth.com/ira
+
+--------------------------------
+PRODUCTS (MENU / FOOTER / SITE LINKS)
+--------------------------------
+- Managed portfolios → https://www.willowwealth.com/360
+- Direct investments → https://www.willowwealth.com/direct-investing
+- Retirement accounts → https://www.willowwealth.com/ira
+- Alternative Income Fund → https://yieldstreetalternativeincomefund.com/
+- Short Term Notes → https://www.willowwealth.com/short-term-notes
+- Real Estate → https://www.willowwealth.com/real-estate-investing
+
+--------------------------------
+RESOURCES
+--------------------------------
+- Why private markets → https://www.willowwealth.com/why-private-markets
+- How it works → https://www.willowwealth.com/how-it-works
+- Learn → https://www.willowwealth.com/articles
+- Support → https://www.willowwealth.com/support
+
+--------------------------------
+COMPANY
+--------------------------------
+- About us → https://www.willowwealth.com/about
+- Careers → https://www.willowwealth.com/careers
+- Capital partnerships → https://www.willowwealth.com/raise-capital
+
+FINAL CHECK:
+- All links open in a new tab
+- No text, design, or layout changes
+- URLs exactly match those listed above
