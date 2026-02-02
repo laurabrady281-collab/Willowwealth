@@ -805,6 +805,19 @@ body {
     border: none;
     color: #94a3b8;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.toggle-password:hover {
+    color: #002b28;
+}
+
+/* Auth input padding fix to prevent text overlap with eye icon */
+.password-group input {
+    padding-right: 48px !important;
 }
 
 .form-options {

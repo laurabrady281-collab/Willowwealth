@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign up | WillowWealth</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="signup-page">
@@ -40,10 +41,33 @@
                             <input type="email" id="email" placeholder=" " required>
                             <label for="email">Email address</label>
                         </div>
-                        <div class="floating-group">
+                        <div class="floating-group password-group">
                             <input type="password" id="password" placeholder=" " required>
                             <label for="password">Password</label>
+                            <button type="button" class="toggle-password" id="togglePassword">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
                         </div>
+                        
+                        <script>
+                            const togglePassword = document.querySelector('#togglePassword');
+                            const password = document.querySelector('#password');
+                            
+                            if (togglePassword && password) {
+                                togglePassword.addEventListener('click', function (e) {
+                                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                                    password.setAttribute('type', type);
+                                    const icon = this.querySelector('i');
+                                    if (type === 'text') {
+                                        icon.classList.remove('fa-eye');
+                                        icon.classList.add('fa-eye-slash');
+                                    } else {
+                                        icon.classList.remove('fa-eye-slash');
+                                        icon.classList.add('fa-eye');
+                                    }
+                                });
+                            }
+                        </script>
                         <button type="submit" class="btn-continue">Continue</button>
                     </form>
                     
