@@ -899,6 +899,17 @@ body {
     font-weight: 500;
     margin-bottom: 12px;
     cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-social:hover {
+    background-color: #f8fafc;
+}
+
+.btn-social img,
+.btn-social svg {
+    flex-shrink: 0;
+    display: block;
 }
 
 .auth-footer-text {
