@@ -377,12 +377,11 @@
                 const href = this.getAttribute('href');
                 const target = this.getAttribute('target');
 
-                // Don't show loader for new tabs, anchors, or external links
+                // Don't show loader for anchors or external links
                 if (href && 
                     !href.startsWith('#') && 
                     !href.startsWith('javascript') && 
-                    target !== '_blank' && 
-                    !href.includes('willowwealth.com')) {
+                    target !== '_blank') {
                     
                     const loader = document.getElementById('page-loader');
                     if (loader) {

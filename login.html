@@ -9,6 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="auth-page">
+    <div id="page-loader" class="page-loader">
+        <div class="loader-content">
+            <svg class="loader-w" viewBox="0 0 100 100">
+                <path d="M20 30 L40 70 L50 50 L60 70 L80 30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+    </div>
     <div class="auth-container">
         <header class="auth-header">
             <a href="index.html" class="auth-logo">
@@ -94,5 +101,39 @@
             Copyright © 2026 Willow Wealth Inc.
         </footer>
     </div>
+    <script>
+        // Page Loader Logic
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('page-loader');
+            if (loader) {
+                loader.classList.remove('active');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 300);
+            }
+        });
+
+        // Show loader on link clicks
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                const target = this.getAttribute('target');
+
+                if (href && 
+                    !href.startsWith('#') && 
+                    !href.startsWith('javascript') && 
+                    target !== '_blank') {
+                    
+                    const loader = document.getElementById('page-loader');
+                    if (loader) {
+                        loader.style.display = 'flex';
+                        setTimeout(() => {
+                            loader.classList.add('active');
+                        }, 10);
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
