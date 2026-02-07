@@ -43,4 +43,12 @@ document.addEventListener('DOMContentLoaded', function() {
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
     });
+
+    // Automatically show chat button after 10 seconds
+    const chatButton = document.getElementById('chat-prompt-trigger');
+    if (chatButton) {
+        setTimeout(() => {
+            chatButton.classList.add('visible');
+        }, 10000);
+    }
 });

@@ -13,13 +13,15 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 72px;
-            height: 72px;
+            width: 80px;
+            height: 80px;
             cursor: pointer;
             z-index: 10000;
             display: none;
             transition: transform 0.3s ease, opacity 0.3s ease;
             opacity: 0;
+            box-shadow: none !important;
+            filter: none !important;
         }
         .chat-prompt-floating.visible {
             display: block;
@@ -33,7 +35,8 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            box-shadow: none;
+            box-shadow: none !important;
+            filter: none !important;
         }
     </style>
 </head>
