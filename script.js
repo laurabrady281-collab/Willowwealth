@@ -46,9 +46,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Automatically show chat button after 10 seconds
     const chatButton = document.getElementById('chat-prompt-trigger');
+    const chatModal = document.getElementById('chat-modal');
+    const closeBtnX = document.getElementById('modal-close-x');
+    const closeBtnDropdown = document.getElementById('modal-close-dropdown');
+
     if (chatButton) {
         setTimeout(() => {
             chatButton.classList.add('visible');
         }, 10000);
+
+        chatButton.addEventListener('click', () => {
+            chatButton.style.display = 'none';
+            chatModal.classList.add('active');
+        });
     }
+
+    function closeChat() {
+        chatModal.classList.remove('active');
+        chatButton.style.display = 'block';
+        chatButton.classList.add('visible');
+    }
+
+    if (closeBtnX) closeBtnX.addEventListener('click', closeChat);
+    if (closeBtnDropdown) closeBtnDropdown.addEventListener('click', closeChat);
 });
