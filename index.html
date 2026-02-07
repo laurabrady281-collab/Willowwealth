@@ -8,7 +8,39 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .chat-prompt-floating {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            z-index: 10000;
+            display: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        .chat-prompt-floating.visible {
+            display: block;
+            opacity: 1;
+        }
+        .chat-prompt-floating:hover {
+            transform: scale(1.1);
+        }
+        .chat-prompt-floating img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            object-fit: cover;
+        }
+    </style>
 </head>
+<body class="landing-page">
+    <div id="chat-prompt-trigger" class="chat-prompt-floating">
+        <img src="images/chat/chat-prompt.png" alt="Chat with us">
+    </div>
     <div id="page-loader" class="page-loader">
         <div class="loader-content">
             <svg class="loader-w" viewBox="0 0 100 100">
@@ -395,12 +427,29 @@
         });
     </script>
     <script>
-        // Footer "Contact us" link Intercom trigger
+        // Chat interaction handlers
         document.addEventListener('DOMContentLoaded', function() {
+            // Footer "Contact us" link Intercom trigger
             const contactLink = document.getElementById('footer-contact-us');
             if (contactLink) {
                 contactLink.addEventListener('click', function(e) {
                     e.preventDefault();
+                    if (window.Intercom) {
+                        window.Intercom('show');
+                    }
+                });
+            }
+
+            // Floating chat prompt logic
+            const chatPrompt = document.getElementById('chat-prompt-trigger');
+            if (chatPrompt) {
+                // Show after 10 seconds
+                setTimeout(() => {
+                    chatPrompt.classList.add('visible');
+                }, 10000);
+
+                // Open Intercom on click
+                chatPrompt.addEventListener('click', function() {
                     if (window.Intercom) {
                         window.Intercom('show');
                     }
