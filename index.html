@@ -246,7 +246,7 @@
                         <li><a href="https://www.willowwealth.com/about" target="_blank" rel="noopener noreferrer">About us</a></li>
                         <li><a href="https://www.willowwealth.com/careers" target="_blank" rel="noopener noreferrer">Careers</a></li>
                         <li><a href="https://www.willowwealth.com/raise-capital" target="_blank" rel="noopener noreferrer">Capital partnerships</a></li>
-                        <li><a href="#" target="_blank" rel="noopener noreferrer">Contact us</a></li>
+                        <li><a href="#" id="footer-contact-us">Contact us</a></li>
                     </ul>
                 </div>
                 <div class="footer-right-col">
@@ -392,6 +392,20 @@
                     }
                 }
             });
+        });
+    </script>
+    <script>
+        // Footer "Contact us" link Intercom trigger
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactLink = document.getElementById('footer-contact-us');
+            if (contactLink) {
+                contactLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (window.Intercom) {
+                        window.Intercom('show');
+                    }
+                });
+            }
         });
     </script>
     <script>
