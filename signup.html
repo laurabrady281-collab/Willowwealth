@@ -16,7 +16,7 @@
             </svg>
         </div>
     </div>
-    <div class="signup-layout">
+    <div class="signup-layout" id="signup-main-screen">
         <div class="signup-left">
             <header class="signup-header">
                 <a href="index.html" class="auth-logo">
@@ -43,40 +43,7 @@
                         <span>or</span>
                     </div>
                     
-                    <form class="signup-email-form" id="signup-form">
-                        <div class="floating-group">
-                            <input type="email" id="email" placeholder=" " required>
-                            <label for="email">Email address</label>
-                        </div>
-                        <div class="floating-group password-group">
-                            <input type="password" id="password" placeholder=" " required>
-                            <label for="password">Password</label>
-                            <button type="button" class="toggle-password" id="togglePassword">
-                                <i class="fa-regular fa-eye"></i>
-                            </button>
-                        </div>
-                        
-                        <script>
-                            const togglePassword = document.querySelector('#togglePassword');
-                            const password = document.querySelector('#password');
-                            
-                            if (togglePassword && password) {
-                                togglePassword.addEventListener('click', function (e) {
-                                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                                    password.setAttribute('type', type);
-                                    const icon = this.querySelector('i');
-                                    if (type === 'text') {
-                                        icon.classList.remove('fa-eye');
-                                        icon.classList.add('fa-eye-slash');
-                                    } else {
-                                        icon.classList.remove('fa-eye-slash');
-                                        icon.classList.add('fa-eye');
-                                    }
-                                });
-                            }
-                        </script>
-                        <button type="submit" class="btn-continue">Continue</button>
-                    </form>
+                    <button type="button" class="btn-signup-email" id="show-email-signup">Sign up with email</button>
                     
                     <p class="auth-footer-text">
                         Already have an account? <a href="login.html">Log in</a>
@@ -124,6 +91,54 @@
                 </ul>
             </div>
         </div>
+    </div>
+
+    <!-- Email Signup Screen (hidden by default) -->
+    <div class="email-signup-layout" id="email-signup-screen" style="display: none;">
+        <header class="email-signup-header">
+            <img src="images/auth/logo.svg" alt="WillowWealth" style="height: 32px; width: auto;">
+        </header>
+        <main class="email-signup-content">
+            <h1>Create your account</h1>
+            <p class="email-signup-subtitle">Start building a portfolio tailored to your objectives.</p>
+            
+            <form class="email-signup-form" id="signup-form">
+                <div class="input-group">
+                    <input type="text" id="first-name" placeholder="Legal first name" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="last-name" placeholder="Legal last name" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Email address" required>
+                </div>
+                <div class="input-group password-wrapper">
+                    <input type="password" id="password" placeholder="Password" required>
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+
+                <div class="legal-consent">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="consent" required>
+                        <label for="consent">
+                            I have read and accepted the <a href="#">Privacy Policy</a>, <a href="#">Terms of Service</a>, <a href="#">Electronic Disclosure and Consent</a>, <a href="#">Limited Brokerage Services Agreement</a> and <a href="#">Form CRS</a> and I consent to the use of electronic records in connection with this application.
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-continue-email">Continue</button>
+            </form>
+
+            <div class="secure-badge">
+                <img src="images/auth/secure-badge.svg" alt="Secure" style="height: 48px;">
+                <p>SECURE</p>
+            </div>
+        </main>
+        <footer class="email-signup-footer">
+            <p>Copyright © 2026 Willow Wealth Inc.</p>
+        </footer>
     </div>
     <script>
         const signupForm = document.getElementById('signup-form');
