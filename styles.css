@@ -456,8 +456,8 @@ img {
 }
 
 .feature-icon {
-    width: 65px;
-    height: 65px;
+    width: 60px;
+    height: 60px;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
@@ -467,27 +467,17 @@ img {
     border-radius: 0;
 }
 
-.feature-icon.returns-icon {
-    width: 72px;
-    height: 75px;
-}
-
 .feature-icon img {
     display: block;
-    width: 65px;
-    height: 65px;
+    width: 60px;
+    height: 60px;
     object-fit: contain;
-    image-rendering: auto;
     transition: none;
     animation: none;
     opacity: 1;
     clip-path: none;
 }
 
-.feature-icon.returns-icon img {
-    width: 72px;
-    height: 75px;
-}
 
 .feature-card h6 {
     font-size: 18px;
