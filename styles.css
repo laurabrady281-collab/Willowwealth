@@ -384,9 +384,9 @@ img {
 
 .eggs-content {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 40px;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 48px;
 }
 
 .eggs-text {
@@ -407,34 +407,9 @@ img {
 
 .eggs-text p {
     color: #555;
-    font-size: 15px;
-    max-width: 500px;
-}
-
-.btn-outline {
-    display: inline-flex;
-    align-items: center;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 12px 24px;
-    border: 1px solid var(--accent);
-    border-radius: 24px;
-    transition: all 0.2s;
-    white-space: nowrap;
-    min-height: 44px;
-}
-
-.btn-outline:hover {
-    background: var(--accent);
-    color: var(--white);
-}
-
-/* Features Section */
-.features {
-    padding: 0 0 80px;
-    background: var(--white);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 600px;
 }
 
 .features-grid {
@@ -447,18 +422,17 @@ img {
 }
 
 .feature-card {
-    background: var(--white);
-    padding: 40px 32px;
-    border-radius: 16px;
+    background: #f9fafa;
+    padding: 40px 32px 36px;
+    border-radius: 20px;
     color: var(--text-primary);
-    border: 1px solid rgba(0, 46, 48, 0.1);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 46, 48, 0.08);
 }
 
 .feature-icon {
     width: 60px;
     height: 60px;
-    margin-bottom: 20px;
+    margin-bottom: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -478,18 +452,42 @@ img {
     clip-path: none;
 }
 
-
 .feature-card h6 {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     color: var(--text-primary);
 }
 
 .feature-card p {
-    font-size: 14px;
+    font-size: 15px;
     color: #555;
-    line-height: 1.6;
+    line-height: 1.65;
+}
+
+.features-cta {
+    text-align: center;
+    margin-top: 48px;
+}
+
+.btn-outline {
+    display: inline-flex;
+    align-items: center;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 14px 28px;
+    border: 1px solid var(--accent);
+    border-radius: 28px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    min-height: 48px;
+}
+
+.btn-outline:hover {
+    background: var(--accent);
+    color: var(--white);
 }
 
 /* Ways to Invest */
@@ -1701,9 +1699,9 @@ img {
     }
 
     .eggs-content {
-        flex-direction: column;
         text-align: left;
-        gap: 16px;
+        gap: 12px;
+        margin-bottom: 32px;
     }
 
     .eggs-text h2 {
@@ -1712,22 +1710,35 @@ img {
 
     .eggs-text p {
         max-width: 100%;
-        font-size: 15px;
-        line-height: 1.5;
-    }
-
-    .features {
-        padding: 0 0 48px;
+        font-size: 16px;
+        line-height: 1.55;
     }
 
     .features-grid {
         grid-template-columns: 1fr;
-        padding: 0 16px;
-        gap: 12px;
+        gap: 16px;
     }
 
     .feature-card {
-        padding: 24px;
+        padding: 28px 24px 24px;
+    }
+
+    .feature-card h6 {
+        font-size: 18px;
+    }
+
+    .feature-card p {
+        font-size: 15px;
+    }
+
+    .features-cta {
+        margin-top: 32px;
+    }
+
+    .btn-outline {
+        font-size: 15px;
+        padding: 14px 24px;
+        min-height: 48px;
     }
 
     .ways-to-invest {
@@ -1893,7 +1904,6 @@ img {
     }
 
     .eggs-content {
-        flex-direction: column;
         text-align: left;
         gap: 16px;
     }
@@ -1904,7 +1914,6 @@ img {
 
     .features-grid {
         grid-template-columns: repeat(2, 1fr);
-        padding: 0 24px;
     }
 
     .invest-cards {
