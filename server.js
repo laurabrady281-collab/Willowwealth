@@ -111,6 +111,7 @@ async function handleGoogleAuth(req, res) {
     const mode = query.mode || 'login';
 
     if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+        console.error('Google OAuth not configured. GOOGLE_CLIENT_ID:', !!GOOGLE_CLIENT_ID, 'GOOGLE_CLIENT_SECRET:', !!GOOGLE_CLIENT_SECRET);
         return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=google_not_configured`);
     }
 
@@ -121,9 +122,12 @@ async function handleGoogleAuth(req, res) {
 
     setCookie(res, 'oauth_state', state, 600);
 
+    const redirectUri = `${BASE_URL}/auth/google/callback`;
+    console.log('Google OAuth initiated - redirect_uri:', redirectUri);
+
     const params = new URLSearchParams({
         client_id: GOOGLE_CLIENT_ID,
-        redirect_uri: `${BASE_URL}/auth/google/callback`,
+        redirect_uri: redirectUri,
         response_type: 'code',
         scope: 'openid email profile',
         state: state,
@@ -136,27 +140,34 @@ async function handleGoogleAuth(req, res) {
 
 async function handleGoogleCallback(req, res) {
     const query = parseQuery(req.url);
-    const { code, state, error } = query;
+    const { code, state, error, error_description } = query;
 
     if (error) {
-        console.error('Google OAuth error:', error);
-        return redirect(res, '/login.html?error=auth_cancelled');
+        console.error('Google OAuth error:', error, 'Description:', error_description || 'none');
+        const mode = 'login';
+        return redirect(res, `/${mode}.html?error=auth_cancelled`);
     }
 
     const cookies = parseCookies(req);
     const cookieState = cookies.oauth_state;
 
     if (!state || !cookieState || state !== cookieState) {
+        console.error('Google OAuth state mismatch. State:', !!state, 'Cookie:', !!cookieState, 'Match:', state === cookieState);
         return redirect(res, '/login.html?error=invalid_state');
     }
 
     const stateData = oauthStates[state];
     if (!stateData || stateData.provider !== 'google') {
+        console.error('Google OAuth state not found or wrong provider');
         return redirect(res, '/login.html?error=invalid_state');
     }
+    const mode = stateData.mode;
     delete oauthStates[state];
 
     try {
+        const redirectUri = `${BASE_URL}/auth/google/callback`;
+        console.log('Google OAuth callback - exchanging code, redirect_uri:', redirectUri);
+
         const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -164,15 +175,15 @@ async function handleGoogleCallback(req, res) {
                 code,
                 client_id: GOOGLE_CLIENT_ID,
                 client_secret: GOOGLE_CLIENT_SECRET,
-                redirect_uri: `${BASE_URL}/auth/google/callback`,
+                redirect_uri: redirectUri,
                 grant_type: 'authorization_code'
             }).toString()
         });
 
         if (!tokenRes.ok) {
             const errBody = await tokenRes.text();
-            console.error('Google token exchange failed:', errBody);
-            return redirect(res, '/login.html?error=token_exchange_failed');
+            console.error('Google token exchange failed (status', tokenRes.status, '):', errBody);
+            return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=token_exchange_failed`);
         }
 
         const tokenData = await tokenRes.json();
@@ -182,11 +193,13 @@ async function handleGoogleCallback(req, res) {
         });
 
         if (!userRes.ok) {
-            console.error('Google userinfo fetch failed');
-            return redirect(res, '/login.html?error=userinfo_failed');
+            const errBody = await userRes.text();
+            console.error('Google userinfo fetch failed (status', userRes.status, '):', errBody);
+            return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=userinfo_failed`);
         }
 
         const userInfo = await userRes.json();
+        console.log('Google OAuth success - user:', userInfo.email);
 
         const sessionToken = generateToken();
         sessions[sessionToken] = {
@@ -196,7 +209,7 @@ async function handleGoogleCallback(req, res) {
             name: userInfo.name,
             picture: userInfo.picture,
             created: Date.now(),
-            mode: stateData.mode
+            mode: mode
         };
 
         setCookie(res, 'oauth_state', '', 0);
@@ -204,8 +217,8 @@ async function handleGoogleCallback(req, res) {
 
         redirect(res, '/dashboard.html');
     } catch (err) {
-        console.error('Google OAuth callback error:', err);
-        redirect(res, '/login.html?error=auth_failed');
+        console.error('Google OAuth callback error:', err.message, err.stack);
+        redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=auth_failed`);
     }
 }
 
@@ -215,7 +228,8 @@ async function handleAppleAuth(req, res) {
 
     const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID;
     if (!APPLE_CLIENT_ID) {
-        return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=apple_not_configured`);
+        console.log('Apple Sign-In not configured - redirecting back with notice');
+        return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=apple_coming_soon`);
     }
 
     const state = generateToken();
@@ -258,7 +272,7 @@ async function handleAppleCallback(req, res) {
     delete oauthStates[state];
 
     setCookie(res, 'oauth_state', '', 0);
-    redirect(res, '/login.html?error=apple_not_configured');
+    redirect(res, '/login.html?error=apple_coming_soon');
 }
 
 async function handleAuthStatus(req, res) {

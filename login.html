@@ -127,6 +127,30 @@
         </footer>
     </div>
     <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const error = params.get('error');
+            if (error) {
+                const messages = {
+                    'apple_coming_soon': 'Apple Sign-In is coming soon. Please use Google or email to sign in.',
+                    'google_not_configured': 'Google Sign-In is not available right now. Please try again later.',
+                    'auth_cancelled': 'Sign-in was cancelled.',
+                    'invalid_state': 'Something went wrong. Please try again.',
+                    'token_exchange_failed': 'Authentication failed. Please try again.',
+                    'userinfo_failed': 'Could not retrieve your account info. Please try again.',
+                    'auth_failed': 'Authentication failed. Please try again.'
+                };
+                const msg = messages[error] || 'An error occurred. Please try again.';
+                const toast = document.createElement('div');
+                toast.textContent = msg;
+                toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#013536;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-family:Inter,sans-serif;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 5000);
+                window.history.replaceState({}, '', window.location.pathname);
+            }
+        })();
+    </script>
+    <script>
         // Page Loader Logic
         window.addEventListener('load', () => {
             const loader = document.getElementById('page-loader');
