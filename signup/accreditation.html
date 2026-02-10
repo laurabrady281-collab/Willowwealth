@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accredited Investor - Willow Wealth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            padding: 60px 24px 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 400;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555555;
+            text-align: center;
+            margin-bottom: 32px;
+            max-width: 520px;
+        }
+
+        .options-list {
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .option-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #ffffff;
+            min-height: 56px;
+        }
+
+        .option-card:hover {
+            border-color: #cccccc;
+        }
+
+        .option-card.selected {
+            background-color: #013536;
+            border-color: #013536;
+            color: #ffffff;
+        }
+
+        .option-checkmark {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .option-card.selected .option-checkmark {
+            opacity: 1;
+        }
+
+        .option-checkmark svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .option-text {
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .continue-btn {
+            width: 100%;
+            max-width: 520px;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: not-allowed;
+            background-color: #e0e0e0;
+            color: #999999;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .continue-btn.enabled {
+            background-color: #a2f2b7;
+            color: #1a1a1a;
+            cursor: pointer;
+        }
+
+        .continue-btn.enabled:hover {
+            background-color: #8de0a3;
+        }
+
+        .footer {
+            width: 100%;
+            text-align: center;
+            padding: 24px;
+            font-size: 13px;
+            color: #999999;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 40px 20px 32px;
+            }
+
+            .logo-text {
+                font-size: 28px;
+                margin-bottom: 24px;
+            }
+
+            .page-title {
+                font-size: 18px;
+            }
+
+            .description {
+                font-size: 13px;
+            }
+
+            .option-card {
+                padding: 16px 16px;
+            }
+
+            .option-text {
+                font-size: 14px;
+            }
+
+            .continue-btn {
+                font-size: 14px;
+                padding: 13px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-text">WillowWealth</div>
+
+        <h1 class="page-title">Are you an accredited investor?</h1>
+
+        <p class="description">
+            To help us understand which of our investment opportunities is
+            best for you, please provide some information about your
+            accredited status, which we will verify later in the account setup
+            process.
+        </p>
+
+        <div class="options-list">
+            <div class="option-card" data-value="income_200k">
+                <span class="option-checkmark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <span class="option-text">I earn $200K+ yearly, or $300K+ with my spousal equivalent</span>
+            </div>
+
+            <div class="option-card" data-value="assets_1m">
+                <span class="option-checkmark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <span class="option-text">I have $1M+ in assets, excluding my primary residence</span>
+            </div>
+
+            <div class="option-card" data-value="entity_5m">
+                <span class="option-checkmark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <span class="option-text">I own an entity (ie. family office) with $5M+ in assets</span>
+            </div>
+
+            <div class="option-card" data-value="series_license">
+                <span class="option-checkmark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <span class="option-text">I hold a Series 7, 65 or 82 license currently in good standing</span>
+            </div>
+
+            <div class="option-card" data-value="none">
+                <span class="option-checkmark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <span class="option-text">None of the above</span>
+            </div>
+        </div>
+
+        <button class="continue-btn" id="continue-btn" disabled>Continue</button>
+    </div>
+
+    <div class="footer">
+        Copyright &copy; 2026 Willow Wealth Inc.
+    </div>
+
+    <script src="https://widget.intercom.io/widget/ub97p16r" async></script>
+    <script>
+        window.intercomSettings = { app_id: 'ub97p16r' };
+    </script>
+
+    <script>
+        var selectedOption = null;
+        var continueBtn = document.getElementById('continue-btn');
+        var optionCards = document.querySelectorAll('.option-card');
+
+        optionCards.forEach(function(card) {
+            card.addEventListener('click', function() {
+                optionCards.forEach(function(c) { c.classList.remove('selected'); });
+                card.classList.add('selected');
+                selectedOption = card.getAttribute('data-value');
+                continueBtn.classList.add('enabled');
+                continueBtn.disabled = false;
+            });
+        });
+
+        continueBtn.addEventListener('click', function() {
+            if (!selectedOption) return;
+
+            continueBtn.disabled = true;
+            continueBtn.textContent = 'Please wait...';
+
+            fetch('/api/onboarding/accreditation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: selectedOption })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert(data.error || 'Something went wrong');
+                    continueBtn.disabled = false;
+                    continueBtn.textContent = 'Continue';
+                }
+            })
+            .catch(function() {
+                alert('Something went wrong. Please try again.');
+                continueBtn.disabled = false;
+                continueBtn.textContent = 'Continue';
+            });
+        });
+
+        fetch('/auth/status')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.authenticated) {
+                    window.location.href = '/login.html';
+                }
+            });
+    </script>
+</body>
+</html>

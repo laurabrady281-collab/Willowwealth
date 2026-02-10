@@ -2,7 +2,7 @@
 
 ## Overview
 
-WillowWealth is a marketing website for a private markets investment platform. The site serves as a landing page and includes authentication (Google OAuth, Apple Sign-In placeholder, email/password), a mandatory onboarding flow (legal name confirmation), and a user dashboard.
+WillowWealth is a marketing website for a private markets investment platform. The site serves as a landing page and includes authentication (Google OAuth, Apple Sign-In placeholder, email/password), a mandatory 3-step onboarding flow (terms acceptance → accreditation → legal name confirmation), and a user dashboard.
 
 ## User Preferences
 
@@ -17,7 +17,7 @@ Preferred communication style: Simple, everyday language.
 - **Animation Pattern**: Uses Intersection Observer API for scroll-triggered animations on cards
 - **Auth Pages**: Login, signup, forgot-password pages with consistent styling (accent: #013536, buttons: #a2f2b7)
 - **Signup Flow**: Two-screen design - main screen (social auth + email button) and email signup screen (form with legal consent)
-- **Onboarding Flow**: Mandatory legal name confirmation page after signup/login, server-enforced
+- **Onboarding Flow**: Mandatory 3-step flow after signup/login: terms acceptance → accreditation → legal name confirmation, server-enforced
 - **Intercom Chat**: Widget integrated on all pages (app_id: ub97p16r) with floating chat prompt on landing page
 
 ### Backend Architecture
@@ -35,9 +35,10 @@ Preferred communication style: Simple, everyday language.
 
 ### Onboarding System
 - **Sequential Steps**: Defined as ordered array `ONBOARDING_STEPS` in server.js
-- **Current Steps**: `legal_name_completed` → `/legal-name.html`
-- **Server Enforcement**: Protected pages (`/dashboard.html`, `/legal-name.html`) check auth + onboarding status
-- **Database Fields**: `legal_name_completed`, `onboarding_completed` booleans on users table
+- **Current Steps**: `terms_accepted` → `/signup/terms-review` → `accreditation_completed` → `/signup/accreditation` → `legal_name_completed` → `/legal-name.html`
+- **Server Enforcement**: Protected pages check auth + onboarding status, redirect to correct step
+- **Database Fields**: `terms_accepted`, `accreditation_completed`, `accreditation_status`, `legal_name_completed`, `onboarding_completed` on users table
+- **Clean URL Routing**: `/signup/terms-review` and `/signup/accreditation` map to HTML files in `/signup/` directory
 - **Resume Logic**: On login, user is redirected to their next incomplete onboarding step
 - **Extensible**: Add new steps to `ONBOARDING_STEPS` array with a `key` and `page` property
 
@@ -53,6 +54,8 @@ Preferred communication style: Simple, everyday language.
 ### API Routes
 - `POST /api/signup` - Email signup (creates user, session, sends verification email)
 - `POST /api/login` - Email login (validates credentials, creates session, returns onboarding redirect)
+- `POST /api/onboarding/terms` - Accepts terms of use, marks step complete
+- `POST /api/onboarding/accreditation` - Saves accreditation status, marks step complete
 - `POST /api/onboarding/legal-name` - Saves legal name, marks step complete
 - `GET /api/onboarding/status` - Returns current onboarding progress
 - `POST /send-verification` - Sends email verification
@@ -68,6 +71,9 @@ Preferred communication style: Simple, everyday language.
   - `password_hash` VARCHAR(255)
   - `legal_first_name` VARCHAR(255)
   - `legal_last_name` VARCHAR(255)
+  - `terms_accepted` BOOLEAN DEFAULT FALSE
+  - `accreditation_status` VARCHAR(255)
+  - `accreditation_completed` BOOLEAN DEFAULT FALSE
   - `legal_name_completed` BOOLEAN DEFAULT FALSE
   - `onboarding_completed` BOOLEAN DEFAULT FALSE
   - `created_at` TIMESTAMP

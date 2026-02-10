@@ -20,6 +20,8 @@ const sessions = {};
 const oauthStates = {};
 
 const ONBOARDING_STEPS = [
+    { key: 'terms_accepted', page: '/signup/terms-review' },
+    { key: 'accreditation_completed', page: '/signup/accreditation' },
     { key: 'legal_name_completed', page: '/legal-name.html' }
 ];
 
@@ -462,6 +464,8 @@ async function handleAuthStatus(req, res) {
             },
             onboarding: {
                 completed: user.onboarding_completed,
+                termsAccepted: user.terms_accepted,
+                accreditationCompleted: user.accreditation_completed,
                 legalNameCompleted: user.legal_name_completed,
                 nextStep: nextStep ? nextStep.page : null
             }
@@ -501,6 +505,66 @@ async function handleSaveLegalName(req, res) {
     jsonResponse(res, 200, { success: true, redirect: dest });
 }
 
+async function handleTermsAcceptance(req, res) {
+    const sessionData = getSessionUser(req);
+    if (!sessionData) {
+        return jsonResponse(res, 401, { success: false, error: 'Not authenticated' });
+    }
+
+    const { accepted } = await parseBody(req);
+    if (!accepted) {
+        return jsonResponse(res, 400, { success: false, error: 'You must accept the terms to continue' });
+    }
+
+    await pool.query(
+        'UPDATE users SET terms_accepted = TRUE, updated_at = NOW() WHERE id = $1',
+        [sessionData.userId]
+    );
+
+    const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sessionData.userId])).rows[0];
+
+    const allComplete = ONBOARDING_STEPS.every(step => user[step.key]);
+    if (allComplete) {
+        await pool.query('UPDATE users SET onboarding_completed = TRUE, updated_at = NOW() WHERE id = $1', [user.id]);
+    }
+
+    const nextStep = getNextOnboardingStep(user);
+    const dest = nextStep ? nextStep.page : '/dashboard.html';
+
+    console.log('Terms accepted for user:', user.email, '- next:', dest);
+    jsonResponse(res, 200, { success: true, redirect: dest });
+}
+
+async function handleAccreditation(req, res) {
+    const sessionData = getSessionUser(req);
+    if (!sessionData) {
+        return jsonResponse(res, 401, { success: false, error: 'Not authenticated' });
+    }
+
+    const { status } = await parseBody(req);
+    if (!status) {
+        return jsonResponse(res, 400, { success: false, error: 'Please select an option' });
+    }
+
+    await pool.query(
+        'UPDATE users SET accreditation_status = $1, accreditation_completed = TRUE, updated_at = NOW() WHERE id = $2',
+        [status, sessionData.userId]
+    );
+
+    const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sessionData.userId])).rows[0];
+
+    const allComplete = ONBOARDING_STEPS.every(step => user[step.key]);
+    if (allComplete) {
+        await pool.query('UPDATE users SET onboarding_completed = TRUE, updated_at = NOW() WHERE id = $1', [user.id]);
+    }
+
+    const nextStep = getNextOnboardingStep(user);
+    const dest = nextStep ? nextStep.page : '/dashboard.html';
+
+    console.log('Accreditation saved for user:', user.email, '- status:', status, '- next:', dest);
+    jsonResponse(res, 200, { success: true, redirect: dest });
+}
+
 async function handleOnboardingStatus(req, res) {
     const sessionData = getSessionUser(req);
     if (!sessionData) {
@@ -533,8 +597,8 @@ async function handleLogout(req, res) {
     redirect(res, '/index.html');
 }
 
-const PROTECTED_PAGES = ['/dashboard.html', '/legal-name.html', '/mobile-phone.html'];
-const ONBOARDING_PAGES = ['/legal-name.html', '/mobile-phone.html'];
+const PROTECTED_PAGES = ['/dashboard.html', '/legal-name.html', '/mobile-phone.html', '/signup/terms-review', '/signup/accreditation', '/signup/terms-review.html', '/signup/accreditation.html'];
+const ONBOARDING_PAGES = ['/legal-name.html', '/mobile-phone.html', '/signup/terms-review', '/signup/accreditation', '/signup/terms-review.html', '/signup/accreditation.html'];
 
 const server = http.createServer(async (req, res) => {
     const urlPath = req.url.split('?')[0];
@@ -570,6 +634,12 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === 'POST' && urlPath === '/api/login') {
         return handleEmailLogin(req, res);
+    }
+    if (req.method === 'POST' && urlPath === '/api/onboarding/terms') {
+        return handleTermsAcceptance(req, res);
+    }
+    if (req.method === 'POST' && urlPath === '/api/onboarding/accreditation') {
+        return handleAccreditation(req, res);
     }
     if (req.method === 'POST' && urlPath === '/api/onboarding/legal-name') {
         return handleSaveLegalName(req, res);
@@ -623,12 +693,18 @@ const server = http.createServer(async (req, res) => {
             return redirect(res, '/dashboard.html');
         }
 
-        if (ONBOARDING_PAGES.includes(urlPath) && urlPath !== correctPage) {
+        var normalizedUrl = urlPath.replace(/\.html$/, '');
+        var normalizedCorrect = correctPage.replace(/\.html$/, '');
+        if (ONBOARDING_PAGES.includes(urlPath) && normalizedUrl !== normalizedCorrect) {
             return redirect(res, correctPage);
         }
     }
 
-    let filePath = urlPath === '/' ? '/index.html' : urlPath;
+    const cleanRoutes = {
+        '/signup/terms-review': '/signup/terms-review.html',
+        '/signup/accreditation': '/signup/accreditation.html'
+    };
+    let filePath = urlPath === '/' ? '/index.html' : (cleanRoutes[urlPath] || urlPath);
     filePath = path.join(__dirname, filePath);
 
     const ext = path.extname(filePath);

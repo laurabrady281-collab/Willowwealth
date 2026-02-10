@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Use Agreement - Willow Wealth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            padding: 60px 24px 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 400;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555555;
+            text-align: center;
+            margin-bottom: 32px;
+            max-width: 520px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 32px;
+            width: 100%;
+            max-width: 520px;
+            text-align: left;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            border: 2px solid #013536;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            margin-top: 2px;
+            background: #ffffff;
+        }
+
+        .checkbox-container input[type="checkbox"]:checked {
+            background-color: #013536;
+            border-color: #013536;
+        }
+
+        .checkbox-container input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .checkbox-label {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        .checkbox-label a {
+            color: #1a1a1a;
+            text-decoration: underline;
+            font-weight: 400;
+        }
+
+        .checkbox-label a:hover {
+            color: #013536;
+        }
+
+        .continue-btn {
+            width: 100%;
+            max-width: 520px;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: not-allowed;
+            background-color: #e0e0e0;
+            color: #999999;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .continue-btn.enabled {
+            background-color: #a2f2b7;
+            color: #1a1a1a;
+            cursor: pointer;
+        }
+
+        .continue-btn.enabled:hover {
+            background-color: #8de0a3;
+        }
+
+        .footer {
+            width: 100%;
+            text-align: center;
+            padding: 24px;
+            font-size: 13px;
+            color: #999999;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 40px 20px 32px;
+            }
+
+            .logo-text {
+                font-size: 28px;
+                margin-bottom: 24px;
+            }
+
+            .page-title {
+                font-size: 18px;
+            }
+
+            .description {
+                font-size: 13px;
+            }
+
+            .checkbox-label {
+                font-size: 13px;
+            }
+
+            .continue-btn {
+                font-size: 14px;
+                padding: 13px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-text">WillowWealth</div>
+
+        <h1 class="page-title">Terms of Use Agreement</h1>
+
+        <p class="description">
+            In order to access the Willow Wealth platform, please carefully
+            review and accept the updated agreements. By proceeding, you
+            acknowledge that you have reviewed the information provided
+            and agree to comply with our policies and guidelines.
+        </p>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="terms-checkbox">
+            <label class="checkbox-label" for="terms-checkbox">
+                I have read and accepted the <a href="#">Privacy Policy</a>,
+                <a href="#">Terms of Service</a>,
+                <a href="#">Electronic Disclosure and Consent</a>,
+                <a href="#">Limited Brokerage Services Agreement</a>
+                and <a href="#">Form CRS</a> and I
+                consent to the use of electronic records in connection with
+                this application.
+            </label>
+        </div>
+
+        <button class="continue-btn" id="continue-btn" disabled>Continue</button>
+    </div>
+
+    <div class="footer">
+        Copyright &copy; 2026 Willow Wealth Inc.
+    </div>
+
+    <script src="https://widget.intercom.io/widget/ub97p16r" async></script>
+    <script>
+        window.intercomSettings = { app_id: 'ub97p16r' };
+    </script>
+
+    <script>
+        var checkbox = document.getElementById('terms-checkbox');
+        var continueBtn = document.getElementById('continue-btn');
+
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                continueBtn.classList.add('enabled');
+                continueBtn.disabled = false;
+            } else {
+                continueBtn.classList.remove('enabled');
+                continueBtn.disabled = true;
+            }
+        });
+
+        continueBtn.addEventListener('click', function() {
+            if (!checkbox.checked) return;
+
+            continueBtn.disabled = true;
+            continueBtn.textContent = 'Please wait...';
+
+            fetch('/api/onboarding/terms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accepted: true })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert(data.error || 'Something went wrong');
+                    continueBtn.disabled = false;
+                    continueBtn.textContent = 'Continue';
+                }
+            })
+            .catch(function() {
+                alert('Something went wrong. Please try again.');
+                continueBtn.disabled = false;
+                continueBtn.textContent = 'Continue';
+            });
+        });
+
+        fetch('/auth/status')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.authenticated) {
+                    window.location.href = '/login.html';
+                }
+            });
+    </script>
+</body>
+</html>
