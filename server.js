@@ -123,7 +123,13 @@ async function handleGoogleAuth(req, res) {
     setCookie(res, 'oauth_state', state, 600);
 
     const redirectUri = `${BASE_URL}/auth/google/callback`;
-    console.log('Google OAuth initiated - redirect_uri:', redirectUri);
+
+    console.log('=== GOOGLE OAUTH DEBUG ===');
+    console.log('client_id:', GOOGLE_CLIENT_ID);
+    console.log('redirect_uri:', redirectUri);
+    console.log('scope:', 'openid email profile');
+    console.log('response_type:', 'code');
+    console.log('==========================');
 
     const params = new URLSearchParams({
         client_id: GOOGLE_CLIENT_ID,
@@ -135,7 +141,10 @@ async function handleGoogleAuth(req, res) {
         prompt: 'select_account'
     });
 
-    redirect(res, `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    console.log('Full auth URL:', authUrl);
+
+    redirect(res, authUrl);
 }
 
 async function handleGoogleCallback(req, res) {
@@ -309,6 +318,13 @@ async function handleLogout(req, res) {
 const server = http.createServer(async (req, res) => {
     const urlPath = req.url.split('?')[0];
 
+    if (req.method === 'GET' && urlPath === '/auth/error') {
+        const filePath = path.join(__dirname, 'auth-error.html');
+        return fs.readFile(filePath, (err, content) => {
+            res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-cache' });
+            res.end(content);
+        });
+    }
     if (req.method === 'GET' && urlPath === '/auth/google') {
         return handleGoogleAuth(req, res);
     }

@@ -128,6 +128,16 @@
     </div>
     <script>
         (function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                var googleBtn = document.querySelector('a[href*="/auth/google"]');
+                if (googleBtn) {
+                    googleBtn.addEventListener('click', function(e) {
+                        console.log('[OAuth Debug] Google auth URL:', window.location.origin + googleBtn.getAttribute('href'));
+                        console.log('[OAuth Debug] Expected redirect_uri:', window.location.origin + '/auth/google/callback');
+                    });
+                }
+            });
+
             const params = new URLSearchParams(window.location.search);
             const error = params.get('error');
             if (error) {

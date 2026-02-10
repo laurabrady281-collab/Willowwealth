@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Error | WillowWealth</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafa;
+            color: #002e30;
+            padding: 40px 20px;
+        }
+        .error-container {
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+        }
+        .error-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            background: #fee2e2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .error-msg {
+            font-size: 15px;
+            color: #4b5563;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+        .error-details {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+        .error-details strong {
+            color: #002e30;
+        }
+        .btn-back {
+            display: inline-block;
+            padding: 12px 32px;
+            background: #013536;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .btn-back:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">⚠</div>
+        <h1>Google OAuth blocked by Google Console configuration (403)</h1>
+        <p class="error-msg">
+            Google is rejecting the sign-in request. This is not a code issue — it's a configuration issue in the Google Cloud Console.
+        </p>
+        <div class="error-details">
+            <p><strong>Common causes:</strong></p>
+            <ul style="padding-left: 20px; margin-top: 8px;">
+                <li>OAuth consent screen is not published or is still in "Testing" mode without test users added</li>
+                <li>The OAuth client type is not set to "Web application"</li>
+                <li>The redirect URI in the Google Console does not exactly match the one used by this app</li>
+                <li>The Google Client ID or Client Secret is from a different project or has been regenerated</li>
+                <li>Required APIs (Google+ API or People API) are not enabled in the project</li>
+            </ul>
+            <p style="margin-top: 16px;"><strong>Required redirect URI:</strong></p>
+            <code id="redirect-uri" style="display:block;margin-top:8px;padding:10px;background:#f3f4f6;border-radius:8px;word-break:break-all;font-size:12px;"></code>
+        </div>
+        <a href="/login.html" class="btn-back">Back to Login</a>
+    </div>
+    <script>
+        document.getElementById('redirect-uri').textContent = window.location.origin + '/auth/google/callback';
+    </script>
+</body>
+</html>
