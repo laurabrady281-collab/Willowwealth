@@ -290,22 +290,39 @@ async function handleGoogleCallback(req, res) {
         }
 
         const userInfo = await userRes.json();
-        console.log('Google OAuth success - user:', userInfo.email);
-
-        const user = await findOrCreateUser({
-            email: userInfo.email,
-            name: userInfo.name,
-            picture: userInfo.picture,
-            provider: 'google',
-            providerId: userInfo.id
-        });
+        console.log('Google OAuth success - user:', userInfo.email, '- mode:', mode);
 
         setCookie(res, 'oauth_state', '', 0);
-        await createSessionForUser(res, user);
 
-        const dest = getOnboardingRedirect(user);
-        console.log('Redirecting user to:', dest, '(onboarding_completed:', user.onboarding_completed, ')');
-        redirect(res, dest);
+        if (mode === 'login') {
+            const existing = (await pool.query('SELECT * FROM users WHERE email = $1', [userInfo.email])).rows[0];
+            if (!existing) {
+                console.log('Login attempt but no account found for:', userInfo.email);
+                return redirect(res, '/login.html?error=no_account');
+            }
+            await pool.query(
+                'UPDATE users SET name = COALESCE($1, name), picture = COALESCE($2, picture), updated_at = NOW() WHERE id = $3',
+                [userInfo.name, userInfo.picture, existing.id]
+            );
+            existing.name = userInfo.name || existing.name;
+            existing.picture = userInfo.picture || existing.picture;
+            await createSessionForUser(res, existing);
+            const dest = getOnboardingRedirect(existing);
+            console.log('Redirecting existing user to:', dest);
+            redirect(res, dest);
+        } else {
+            const user = await findOrCreateUser({
+                email: userInfo.email,
+                name: userInfo.name,
+                picture: userInfo.picture,
+                provider: 'google',
+                providerId: userInfo.id
+            });
+            await createSessionForUser(res, user);
+            const dest = getOnboardingRedirect(user);
+            console.log('Redirecting user to:', dest, '(onboarding_completed:', user.onboarding_completed, ')');
+            redirect(res, dest);
+        }
     } catch (err) {
         console.error('Google OAuth callback error:', err.message, err.stack);
         redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=auth_failed`);
