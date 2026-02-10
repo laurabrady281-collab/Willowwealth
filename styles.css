@@ -650,7 +650,7 @@ img {
     display: flex;
     align-items: center;
     width: max-content;
-    animation: scrollLeft 20s linear infinite;
+    animation: scrollLeft 15s linear infinite;
     will-change: transform;
 }
 
