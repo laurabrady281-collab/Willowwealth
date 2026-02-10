@@ -648,11 +648,18 @@ img {
 
 .partners-track {
     display: flex;
-    gap: 100px;
     align-items: center;
     width: max-content;
-    animation: scrollLeft 12s linear infinite;
+    animation: scrollLeft 20s linear infinite;
     will-change: transform;
+}
+
+.partners-set {
+    display: flex;
+    gap: 100px;
+    align-items: center;
+    padding-right: 100px;
+    flex-shrink: 0;
 }
 
 .partners-track img {
@@ -1737,8 +1744,9 @@ img {
         min-height: 200px;
     }
 
-    .partners-track {
+    .partners-set {
         gap: 50px;
+        padding-right: 50px;
     }
 
     .partners-track img {
@@ -1933,8 +1941,9 @@ img {
         align-items: center;
     }
 
-    .partners-track {
+    .partners-set {
         gap: 80px;
+        padding-right: 80px;
     }
 
     .partners-track img {
