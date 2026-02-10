@@ -1,0 +1,48 @@
+PARTNER LOGOS SECTION REQUIREMENTS:
+
+For the section titled “A SELECTION OF OUR PARTNERS”:
+
+1. Continuous Infinite Scrolling (LEFT → RIGHT)
+- Partner logos must scroll horizontally from LEFT TO RIGHT in a smooth, continuous, infinite loop.
+- When a logo exits the screen on the right side, it must immediately reappear from the left side with no delay, jump, or empty space.
+- The scrolling must be seamless and uninterrupted (marquee-style animation).
+- Animation must begin automatically on page load.
+
+2. Scroll Behavior & Smoothness
+- Scroll speed should be smooth, consistent, and readable.
+- No stuttering, freezing, or resetting at loop points.
+- Animation must remain fluid across all browsers and devices.
+
+3. Image Enhancement & Visual Strength
+- Strongly enhance all partner logos so they appear:
+  - Crisp and sharp
+  - High-resolution
+  - Bold and clearly visible
+- Increase contrast and clarity so logos stand out clearly.
+- Logos must NOT appear faded, greyed out, blurry, or low-opacity.
+- Preserve original brand colors accurately.
+- Logos should visually “pop” against the background.
+
+4. Size & Spacing
+- Slightly increase logo size for better readability.
+- Maintain even spacing between logos.
+- Do not stretch or distort logo aspect ratios.
+
+5. Responsiveness
+- The scrolling logo section must be fully responsive and optimized for:
+  - Mobile (iOS & Android)
+  - Tablets
+  - Laptops
+  - Desktop screens
+- Logos should scale proportionally while remaining readable on all screen sizes.
+- Performance must remain smooth on low-end mobile devices.
+
+6. Interaction Rules
+- No hover effects that pause, dim, or stop the animation.
+- Scrolling must continue even while the user scrolls the page.
+
+IMPORTANT:
+Do not redesign the layout.
+Do not change the section structure or heading.
+Only apply continuous left-to-right scrolling and visual enhancement.
+The final output must look exactly like the attached screenshots and images, but with improved motion and clarity.

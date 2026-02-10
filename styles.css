@@ -580,40 +580,37 @@ img {
 
 .partners-scroll {
     overflow: hidden;
-    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     width: 100%;
 }
 
 .partners-track {
     display: flex;
-    gap: 120px;
+    gap: 100px;
     align-items: center;
     width: max-content;
-    animation: scroll 20s linear infinite;
+    animation: scrollRight 25s linear infinite;
+    will-change: transform;
 }
 
 .partners-track img {
-    height: 60px;
+    height: 70px;
     width: auto;
     object-fit: contain;
-    filter: grayscale(100%) brightness(0.8);
-    opacity: 0.6;
-    transition: opacity 0.3s, filter 0.3s;
-    flex-shrink: 0;
-}
-
-.partners-track img:hover {
+    filter: contrast(1.1) brightness(1.05);
     opacity: 1;
-    filter: grayscale(0%) brightness(1);
+    flex-shrink: 0;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
-@keyframes scroll {
+@keyframes scrollRight {
     0% {
-        transform: translateX(0);
+        transform: translateX(-50%);
     }
     100% {
-        transform: translateX(calc(-50% - 40px));
+        transform: translateX(0);
     }
 }
 
@@ -1605,11 +1602,11 @@ img {
     }
 
     .partners-track {
-        gap: 40px;
+        gap: 50px;
     }
 
     .partners-track img {
-        height: 35px;
+        height: 45px;
     }
 
     .dual-feature-section {
@@ -1748,11 +1745,11 @@ img {
     }
 
     .partners-track {
-        gap: 60px;
+        gap: 80px;
     }
 
     .partners-track img {
-        height: 45px;
+        height: 55px;
     }
 
     .dual-feature-section {
