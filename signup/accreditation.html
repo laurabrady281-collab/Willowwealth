@@ -259,22 +259,57 @@
     </script>
 
     <script>
-        var selectedOption = null;
         var continueBtn = document.getElementById('continue-btn');
         var optionCards = document.querySelectorAll('.option-card');
 
-        optionCards.forEach(function(card) {
-            card.addEventListener('click', function() {
-                optionCards.forEach(function(c) { c.classList.remove('selected'); });
-                card.classList.add('selected');
-                selectedOption = card.getAttribute('data-value');
+        function getSelectedValues() {
+            var selected = [];
+            optionCards.forEach(function(c) {
+                if (c.classList.contains('selected')) {
+                    selected.push(c.getAttribute('data-value'));
+                }
+            });
+            return selected;
+        }
+
+        function updateButton() {
+            var selected = getSelectedValues();
+            if (selected.length > 0) {
                 continueBtn.classList.add('enabled');
                 continueBtn.disabled = false;
+            } else {
+                continueBtn.classList.remove('enabled');
+                continueBtn.disabled = true;
+            }
+        }
+
+        optionCards.forEach(function(card) {
+            card.addEventListener('click', function() {
+                var value = card.getAttribute('data-value');
+
+                if (value === 'none') {
+                    optionCards.forEach(function(c) {
+                        if (c.getAttribute('data-value') !== 'none') {
+                            c.classList.remove('selected');
+                        }
+                    });
+                    card.classList.toggle('selected');
+                } else {
+                    optionCards.forEach(function(c) {
+                        if (c.getAttribute('data-value') === 'none') {
+                            c.classList.remove('selected');
+                        }
+                    });
+                    card.classList.toggle('selected');
+                }
+
+                updateButton();
             });
         });
 
         continueBtn.addEventListener('click', function() {
-            if (!selectedOption) return;
+            var selected = getSelectedValues();
+            if (selected.length === 0) return;
 
             continueBtn.disabled = true;
             continueBtn.textContent = 'Please wait...';
@@ -282,7 +317,7 @@
             fetch('/api/onboarding/accreditation', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: selectedOption })
+                body: JSON.stringify({ status: selected.join(',') })
             })
             .then(function(res) { return res.json(); })
             .then(function(data) {
