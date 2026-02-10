@@ -43,7 +43,9 @@
                         <span>or</span>
                     </div>
                     
-                    <button type="button" class="btn-signup-email" id="show-email-signup">Sign up with email</button>
+                    <div class="signup-email-trigger">
+                        <img src="images/auth/btn-email-signup.png" alt="Sign up with email" id="show-email-signup" style="cursor: pointer; width: 100%; max-width: 400px; display: block; margin: 0 auto;">
+                    </div>
                     
                     <p class="auth-footer-text">
                         Already have an account? <a href="login.html">Log in</a>
@@ -57,38 +59,8 @@
         </div>
         
         <div class="signup-right">
-            <div class="signup-features-overlay">
-                <h2>Welcome to your <br> one-stop-shop for <br> private markets</h2>
-                
-                <ul class="signup-features-list">
-                    <li>
-                        <div class="feature-icon">
-                            <img src="images/auth/icon-diversification-raw.png" alt="Diversification">
-                        </div>
-                        <div class="feature-text">
-                            <h3>Smart diversification</h3>
-                            <p>Gain broad exposure to private equity, real estate, private credit, and more — all in one place.</p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="feature-icon">
-                            <img src="images/auth/icon-managers-raw.png" alt="Managers">
-                        </div>
-                        <div class="feature-text">
-                            <h3>Prominent managers</h3>
-                            <p>Invest alongside some of the world's largest private markets sponsors.</p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="feature-icon">
-                            <img src="images/auth/icon-invest-raw.png" alt="Invest">
-                        </div>
-                        <div class="feature-text">
-                            <h3>Invest your way</h3>
-                            <p>Build your own portfolio — or let our automated investing solution handle everything for you.</p>
-                        </div>
-                    </li>
-                </ul>
+            <div class="welcome-card-container">
+                <img src="images/auth/welcome-card.png" alt="Welcome to WillowWealth" class="welcome-card-img">
             </div>
         </div>
     </div>
@@ -140,6 +112,21 @@
             <p>Copyright © 2026 Willow Wealth Inc.</p>
         </footer>
     </div>
+    <script>
+        // Screen switching logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const showEmailSignupBtn = document.getElementById('show-email-signup');
+            const signupMainScreen = document.getElementById('signup-main-screen');
+            const emailSignupScreen = document.getElementById('email-signup-screen');
+
+            if (showEmailSignupBtn && signupMainScreen && emailSignupScreen) {
+                showEmailSignupBtn.addEventListener('click', function() {
+                    signupMainScreen.style.display = 'none';
+                    emailSignupScreen.style.display = 'flex';
+                });
+            }
+        });
+    </script>
     <script>
         const signupForm = document.getElementById('signup-form');
         if (signupForm) {
