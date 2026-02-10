@@ -310,25 +310,50 @@
         if (signupForm) {
             signupForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const firstName = document.getElementById('first-name').value;
+                const lastName = document.getElementById('last-name').value;
                 const email = document.getElementById('email').value;
-                
+                const password = document.getElementById('password').value;
+
+                var submitBtn = signupForm.querySelector('.btn-continue-email');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creating account...';
+                }
+
                 try {
-                    const response = await fetch('/send-verification', {
+                    const response = await fetch('/api/signup', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email })
+                        body: JSON.stringify({ firstName, lastName, email, password })
                     });
-                    
+
                     const result = await response.json();
                     if (result.success) {
-                        localStorage.setItem('verificationPending', 'true');
-                        window.location.href = 'legal-name.html';
+                        window.location.href = result.redirect || '/legal-name.html';
                     } else {
-                        alert('Failed to send verification email: ' + result.error);
+                        var errorText = result.error || 'Something went wrong. Please try again.';
+                        var toast = document.createElement('div');
+                        toast.textContent = errorText;
+                        toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-family:Inter,sans-serif;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+                        document.body.appendChild(toast);
+                        setTimeout(function() { toast.remove(); }, 5000);
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Continue';
+                        }
                     }
                 } catch (error) {
-                    alert('An error occurred while sending the verification email.');
-                    console.error(error);
+                    console.error('Signup error:', error);
+                    var toast = document.createElement('div');
+                    toast.textContent = 'An error occurred. Please try again.';
+                    toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-family:Inter,sans-serif;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.remove(); }, 5000);
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Continue';
+                    }
                 }
             });
         }

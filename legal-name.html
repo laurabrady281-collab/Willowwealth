@@ -119,7 +119,27 @@
             color: #64748b;
             cursor: pointer;
         }
-        
+        .error-msg {
+            color: #dc2626;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            font-size: 16px;
+            color: #64748b;
+        }
+
         .verification-banner {
             position: absolute;
             top: 0;
@@ -148,7 +168,7 @@
             font-weight: 500;
             cursor: pointer;
         }
-        
+
         @media (max-width: 768px) {
             .onboarding-left {
                 display: none;
@@ -157,32 +177,33 @@
     </style>
 </head>
 <body class="onboarding-page">
-    <div class="onboarding-layout">
+    <div id="auth-loading" class="loading-overlay">Loading...</div>
+
+    <div class="onboarding-layout" id="onboarding-layout" style="display: none;">
         <div class="onboarding-left">
-            <!-- Wave graphic placeholder -->
             <svg class="wave-graphic" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 600V400C150 350 300 450 450 400C600 350 750 250 800 200V600H0Z" fill="#A3EBB1" fill-opacity="0.1"/>
                 <path d="M0 600V300C200 250 400 350 600 300C700 275 750 225 800 150V600H0Z" fill="#A3EBB1" fill-opacity="0.2"/>
             </svg>
         </div>
         <div class="onboarding-right">
-            <div class="verification-banner" id="verify-banner">
+            <div class="verification-banner" id="verify-banner" style="display: none;">
                 <div class="banner-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 </div>
                 <div class="banner-text">
-                    Your email address needs verification. Check your inbox to verify your email address. This is required to create an investor account. Don’t see the email? <span class="resend-link" id="resend-btn">Resend verification.</span>
+                    Your email address needs verification. Check your inbox to verify your email address. This is required to create an investor account. Don't see the email? <span class="resend-link" id="resend-btn">Resend verification.</span>
                 </div>
             </div>
 
             <header class="onboarding-header">
                 <img src="images/auth/logo.svg" alt="WillowWealth" style="height: 24px;">
             </header>
-            
+
             <main class="onboarding-content">
                 <h1>First, please confirm your legal name</h1>
-                <p>The name you enter should match what's listed on documents such as your driver's license</p>
-                
+                <p>The name you enter should match what's listed on documents such as your driver's license.</p>
+
                 <form class="legal-name-form" id="legal-name-form">
                     <div class="floating-group">
                         <input type="text" id="first-name" required placeholder=" ">
@@ -192,47 +213,144 @@
                         <input type="text" id="last-name" required placeholder=" ">
                         <label for="last-name">Legal last name</label>
                     </div>
+                    <p class="error-msg" id="error-msg"></p>
                     <button type="submit" class="btn-continue" id="continue-btn" disabled>Continue</button>
-                    <div class="why-ask">Why do we ask for this information? ⓘ</div>
+                    <div class="why-ask">Why do we ask for this information? &#9432;</div>
                 </form>
             </main>
         </div>
     </div>
 
     <script>
+        (async function() {
+            try {
+                const res = await fetch('/auth/status');
+                const data = await res.json();
+
+                if (!data.authenticated) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                if (data.onboarding && data.onboarding.legalNameCompleted) {
+                    const dest = data.onboarding.nextStep || '/dashboard.html';
+                    window.location.href = dest;
+                    return;
+                }
+
+                document.getElementById('auth-loading').style.display = 'none';
+                document.getElementById('onboarding-layout').style.display = 'flex';
+
+                if (data.user.provider === 'email') {
+                    document.getElementById('verify-banner').style.display = 'flex';
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+                window.location.href = '/login.html';
+            }
+        })();
+
         const form = document.getElementById('legal-name-form');
         const firstName = document.getElementById('first-name');
         const lastName = document.getElementById('last-name');
         const continueBtn = document.getElementById('continue-btn');
-        const verifyBanner = document.getElementById('verify-banner');
-        const resendBtn = document.getElementById('resend-btn');
-
-        // Logic for hiding banner (simulated verification)
-        if (localStorage.getItem('emailVerified') === 'true') {
-            verifyBanner.style.display = 'none';
-        }
-
-        resendBtn.addEventListener('click', () => {
-            alert('Verification email sent! Click OK to simulate verification.');
-            localStorage.setItem('emailVerified', 'true');
-            verifyBanner.style.display = 'none';
-        });
+        const errorMsg = document.getElementById('error-msg');
 
         function validateForm() {
-            if (firstName.value.trim() !== '' && lastName.value.trim() !== '') {
-                continueBtn.disabled = false;
-            } else {
-                continueBtn.disabled = true;
-            }
+            continueBtn.disabled = !(firstName.value.trim() && lastName.value.trim());
         }
 
         firstName.addEventListener('input', validateForm);
         lastName.addEventListener('input', validateForm);
 
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            window.location.href = 'mobile-phone.html'; 
+            errorMsg.style.display = 'none';
+            continueBtn.disabled = true;
+            continueBtn.textContent = 'Saving...';
+
+            try {
+                const res = await fetch('/api/onboarding/legal-name', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        firstName: firstName.value.trim(),
+                        lastName: lastName.value.trim()
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = data.redirect || '/dashboard.html';
+                } else {
+                    errorMsg.textContent = data.error || 'Something went wrong. Please try again.';
+                    errorMsg.style.display = 'block';
+                    continueBtn.disabled = false;
+                    continueBtn.textContent = 'Continue';
+                }
+            } catch (err) {
+                console.error('Save legal name failed:', err);
+                errorMsg.textContent = 'Something went wrong. Please try again.';
+                errorMsg.style.display = 'block';
+                continueBtn.disabled = false;
+                continueBtn.textContent = 'Continue';
+            }
         });
+
+        var resendBtn = document.getElementById('resend-btn');
+        if (resendBtn) {
+            resendBtn.addEventListener('click', async () => {
+                try {
+                    const statusRes = await fetch('/auth/status');
+                    const statusData = await statusRes.json();
+                    if (statusData.authenticated && statusData.user.email) {
+                        await fetch('/send-verification', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: statusData.user.email })
+                        });
+                        resendBtn.textContent = 'Sent!';
+                        setTimeout(() => { resendBtn.textContent = 'Resend verification.'; }, 3000);
+                    }
+                } catch (err) {
+                    console.error('Resend failed:', err);
+                }
+            });
+        }
+    </script>
+
+    <script>
+      window.intercomSettings = {
+        api_base: "https://api-iam.intercom.io",
+        app_id: "ub97p16r",
+      };
+    </script>
+    <script>
+      (function () {
+        var w = window;
+        var ic = w.Intercom;
+        if (typeof ic === "function") {
+          ic("reattach_activator");
+          ic("update", w.intercomSettings);
+        } else {
+          var d = document;
+          var i = function () { i.c(arguments); };
+          i.q = [];
+          i.c = function (args) { i.q.push(args); };
+          w.Intercom = i;
+          var l = function () {
+            var s = d.createElement("script");
+            s.type = "text/javascript";
+            s.async = true;
+            s.src = "https://widget.intercom.io/widget/ub97p16r";
+            var x = d.getElementsByTagName("script")[0];
+            x.parentNode.insertBefore(s, x);
+          };
+          if (document.readyState === "complete") { l(); }
+          else if (w.attachEvent) { w.attachEvent("onload", l); }
+          else { w.addEventListener("load", l, false); }
+        }
+      })();
     </script>
 </body>
 </html>

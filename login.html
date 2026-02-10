@@ -93,7 +93,7 @@
                     <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
                 </div>
                 
-                <button type="submit" class="btn-auth-submit">Log in</button>
+                <button type="submit" class="btn-auth-submit" id="login-submit-btn">Log in</button>
             </form>
             
             <div class="auth-divider">
@@ -129,6 +129,58 @@
     <script>
         (function() {
             document.addEventListener('DOMContentLoaded', function() {
+                var loginForm = document.querySelector('.auth-form');
+                if (loginForm) {
+                    loginForm.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        var emailInput = document.getElementById('email');
+                        var passwordInput = document.getElementById('password');
+                        var submitBtn = document.getElementById('login-submit-btn');
+
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = 'Logging in...';
+                        }
+
+                        try {
+                            var response = await fetch('/api/login', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    email: emailInput.value,
+                                    password: passwordInput.value
+                                })
+                            });
+
+                            var result = await response.json();
+                            if (result.success) {
+                                window.location.href = result.redirect || '/dashboard.html';
+                            } else {
+                                var toast = document.createElement('div');
+                                toast.textContent = result.error || 'Login failed. Please try again.';
+                                toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-family:Inter,sans-serif;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+                                document.body.appendChild(toast);
+                                setTimeout(function() { toast.remove(); }, 5000);
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.textContent = 'Log in';
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Login error:', err);
+                            var toast = document.createElement('div');
+                            toast.textContent = 'An error occurred. Please try again.';
+                            toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-family:Inter,sans-serif;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+                            document.body.appendChild(toast);
+                            setTimeout(function() { toast.remove(); }, 5000);
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = 'Log in';
+                            }
+                        }
+                    });
+                }
+
                 var googleBtn = document.querySelector('a[href*="/auth/google"]');
                 if (googleBtn) {
                     googleBtn.addEventListener('click', function(e) {

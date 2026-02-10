@@ -118,17 +118,23 @@
                     return;
                 }
 
+                if (data.onboarding && !data.onboarding.completed && data.onboarding.nextStep) {
+                    window.location.href = data.onboarding.nextStep;
+                    return;
+                }
+
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'flex';
                 document.getElementById('dashboard').style.flexDirection = 'column';
                 document.getElementById('dashboard').style.minHeight = '100vh';
 
-                if (data.user.name) {
-                    document.getElementById('user-name').textContent = data.user.name;
-                    document.getElementById('welcome-msg').textContent = `Welcome, ${data.user.name.split(' ')[0]}`;
+                var displayName = data.user.legalFirstName || (data.user.name ? data.user.name.split(' ')[0] : '');
+                if (displayName) {
+                    document.getElementById('user-name').textContent = data.user.name || (data.user.legalFirstName + ' ' + (data.user.legalLastName || ''));
+                    document.getElementById('welcome-msg').textContent = 'Welcome, ' + displayName;
                 }
                 if (data.user.picture) {
-                    const avatar = document.getElementById('user-avatar');
+                    var avatar = document.getElementById('user-avatar');
                     avatar.src = data.user.picture;
                     avatar.style.display = 'block';
                 }
@@ -137,6 +143,40 @@
                 window.location.href = '/login.html';
             }
         })();
+    </script>
+
+    <script>
+      window.intercomSettings = {
+        api_base: "https://api-iam.intercom.io",
+        app_id: "ub97p16r",
+      };
+    </script>
+    <script>
+      (function () {
+        var w = window;
+        var ic = w.Intercom;
+        if (typeof ic === "function") {
+          ic("reattach_activator");
+          ic("update", w.intercomSettings);
+        } else {
+          var d = document;
+          var i = function () { i.c(arguments); };
+          i.q = [];
+          i.c = function (args) { i.q.push(args); };
+          w.Intercom = i;
+          var l = function () {
+            var s = d.createElement("script");
+            s.type = "text/javascript";
+            s.async = true;
+            s.src = "https://widget.intercom.io/widget/ub97p16r";
+            var x = d.getElementsByTagName("script")[0];
+            x.parentNode.insertBefore(s, x);
+          };
+          if (document.readyState === "complete") { l(); }
+          else if (w.attachEvent) { w.attachEvent("onload", l); }
+          else { w.addEventListener("load", l, false); }
+        }
+      })();
     </script>
 </body>
 </html>
