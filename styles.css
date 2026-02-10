@@ -651,7 +651,7 @@ img {
     gap: 100px;
     align-items: center;
     width: max-content;
-    animation: scrollRight 15s linear infinite;
+    animation: scrollLeft 12s linear infinite;
     will-change: transform;
 }
 
@@ -666,12 +666,12 @@ img {
     image-rendering: crisp-edges;
 }
 
-@keyframes scrollRight {
+@keyframes scrollLeft {
     0% {
-        transform: translateX(-50%);
+        transform: translateX(0);
     }
     100% {
-        transform: translateX(0);
+        transform: translateX(-50%);
     }
 }
 
