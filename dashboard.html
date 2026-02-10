@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | WillowWealth</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-page {
+            background-color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #002e30;
+        }
+        .dashboard-header {
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            max-width: 1440px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .dashboard-logo {
+            height: 24px;
+            width: auto;
+        }
+        .dashboard-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .dashboard-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .dashboard-user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .btn-logout {
+            padding: 6px 20px;
+            border: 1px solid #013536;
+            border-radius: 24px;
+            text-decoration: none;
+            color: #013536;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            background: #013536;
+            color: #fff;
+        }
+        .dashboard-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .dashboard-content h1 {
+            font-size: 32px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        .dashboard-content p {
+            font-size: 16px;
+            color: #64748b;
+            max-width: 500px;
+        }
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-size: 16px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div id="loading" class="loading-state">Loading...</div>
+
+    <div id="dashboard" style="display: none;">
+        <header class="dashboard-header">
+            <a href="index.html">
+                <img src="images/auth/logo.svg" alt="WillowWealth" class="dashboard-logo">
+            </a>
+            <div class="dashboard-user">
+                <img id="user-avatar" src="" alt="" class="dashboard-avatar" style="display: none;">
+                <span id="user-name" class="dashboard-user-name"></span>
+                <a href="/auth/logout" class="btn-logout">Log out</a>
+            </div>
+        </header>
+        <main class="dashboard-content">
+            <h1 id="welcome-msg">Welcome back</h1>
+            <p>Your WillowWealth dashboard is being prepared. You'll soon be able to explore curated private market investment opportunities.</p>
+        </main>
+    </div>
+
+    <script>
+        (async function() {
+            try {
+                const res = await fetch('/auth/status');
+                const data = await res.json();
+
+                if (!data.authenticated) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'flex';
+                document.getElementById('dashboard').style.flexDirection = 'column';
+                document.getElementById('dashboard').style.minHeight = '100vh';
+
+                if (data.user.name) {
+                    document.getElementById('user-name').textContent = data.user.name;
+                    document.getElementById('welcome-msg').textContent = `Welcome, ${data.user.name.split(' ')[0]}`;
+                }
+                if (data.user.picture) {
+                    const avatar = document.getElementById('user-avatar');
+                    avatar.src = data.user.picture;
+                    avatar.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+                window.location.href = '/login.html';
+            }
+        })();
+    </script>
+</body>
+</html>
