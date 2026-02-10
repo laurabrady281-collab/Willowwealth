@@ -849,12 +849,20 @@ body {
 .welcome-card-container {
     max-width: 550px;
     width: 100%;
+    transition: none;
+    animation: none;
+    opacity: 1;
+    transform: none;
 }
 
 .welcome-card-img {
     width: 100%;
     height: auto;
     border-radius: 24px;
+    transition: none;
+    animation: none;
+    opacity: 1;
+    transform: none;
 }
 
 .auth-logo {
