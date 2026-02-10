@@ -187,6 +187,18 @@ img {
     background: var(--accent);
 }
 
+.mobile-menu-header {
+    display: none;
+}
+
+.mobile-menu-divider {
+    display: none;
+}
+
+.mobile-menu-actions {
+    display: none;
+}
+
 .mobile-menu-overlay {
     display: none;
     position: fixed;
@@ -206,28 +218,85 @@ img {
 }
 
 .nav-links.mobile-active {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     position: fixed;
     top: 0;
-    right: 0;
-    width: 300px;
-    max-width: 80vw;
-    height: 100vh;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: var(--white);
     z-index: 2000;
-    padding: 80px 24px 24px;
-    gap: 16px;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    gap: 0;
     transform: translateX(0);
     transition: transform 0.3s ease;
     overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.nav-links.mobile-active .mobile-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+}
+
+.nav-links.mobile-active .mobile-menu-divider {
+    display: block;
+    height: 1px;
+    background: rgba(0, 46, 48, 0.1);
+    margin: 0 20px;
+}
+
+.nav-links.mobile-active > li:not(.mobile-menu-header):not(.mobile-menu-divider):not(.mobile-menu-actions) {
+    padding: 16px 20px;
+}
+
+.nav-links.mobile-active > li:not(.mobile-menu-header):not(.mobile-menu-divider):not(.mobile-menu-actions) .nav-link {
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.nav-links.mobile-active .mobile-menu-actions {
+    display: flex;
+    gap: 12px;
+    padding: 20px;
+    margin-top: auto;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+.nav-links.mobile-active .mobile-menu-actions .btn-signup {
+    padding: 12px 24px;
+    font-size: 15px;
+    min-height: 44px;
+}
+
+.nav-links.mobile-active .mobile-menu-actions .btn-login {
+    padding: 12px 24px;
+    font-size: 15px;
+    min-height: 44px;
+}
+
+.nav-links.mobile-active .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    min-width: 0;
+    padding: 0 0 0 16px;
+    margin-top: 8px;
+}
+
+.nav-links.mobile-active .dropdown-menu a {
+    font-size: 15px;
+    padding: 10px 0;
+}
+
+.nav-links.mobile-active .dropdown-menu a span {
+    display: none;
 }
 
 .mobile-menu-close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
     width: 40px;
     height: 40px;
     background: none;
@@ -236,9 +305,10 @@ img {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 28px;
     color: var(--accent);
-    z-index: 2001;
+    padding: 0;
+    line-height: 1;
 }
 
 /* Hero Section */
@@ -1170,8 +1240,24 @@ img {
     .nav-links {
         display: none;
     }
+    .nav {
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
     .mobile-menu-btn {
         display: flex;
+        order: -1;
+    }
+    .logo {
+        order: 0;
+        flex: 1;
+    }
+    .nav-actions {
+        order: 1;
+        flex-shrink: 0;
+    }
+    .nav-actions .btn-login {
+        display: none;
     }
 }
 
@@ -1550,15 +1636,9 @@ img {
     }
 
     .nav {
-        padding: 10px 12px;
-        gap: 6px;
+        padding: 12px 16px;
+        gap: 8px;
         width: 100%;
-        flex-wrap: nowrap;
-    }
-
-    .logo {
-        flex-shrink: 1;
-        min-width: 0;
     }
 
     .logo img {
@@ -1566,58 +1646,41 @@ img {
         width: auto;
     }
 
-    .nav-links {
-        display: none;
-    }
-
-    .nav-actions {
-        gap: 6px;
-        flex-shrink: 0;
-        flex-wrap: nowrap;
-    }
-
-    .btn-login {
-        padding: 7px 12px;
-        font-size: 12px;
-        min-height: 34px;
-        white-space: nowrap;
-    }
-
     .btn-signup {
-        padding: 7px 12px;
-        font-size: 12px;
-        min-height: 34px;
+        padding: 8px 16px;
+        font-size: 13px;
+        min-height: 36px;
         white-space: nowrap;
     }
 
     .mobile-menu-btn {
-        display: flex;
         flex-shrink: 0;
-        margin-left: 2px;
     }
 
     .hero {
-        margin: calc(60px + env(safe-area-inset-top)) 12px 20px;
+        margin: calc(70px + env(safe-area-inset-top)) 12px 24px;
     }
 
     .hero-container {
-        min-height: 320px;
-        border-radius: 16px;
+        min-height: 340px;
+        border-radius: 20px;
         width: 100%;
     }
 
     .hero-content {
-        padding: 40px 20px;
+        padding: 40px 24px;
     }
 
     .hero h1 {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         margin-bottom: 16px;
+        line-height: 1.2;
     }
 
     .hero p {
-        font-size: 14px;
-        margin-bottom: 24px;
+        font-size: 15px;
+        margin-bottom: 28px;
+        line-height: 1.5;
     }
 
     .hero p br {
@@ -1625,8 +1688,8 @@ img {
     }
 
     .btn-primary {
-        font-size: 13px;
-        padding: 12px 24px;
+        font-size: 14px;
+        padding: 14px 28px;
     }
 
     .eggs-section {
@@ -1635,12 +1698,18 @@ img {
 
     .eggs-content {
         flex-direction: column;
-        text-align: center;
-        gap: 24px;
+        text-align: left;
+        gap: 16px;
+    }
+
+    .eggs-text h2 {
+        font-size: 1.75rem;
     }
 
     .eggs-text p {
         max-width: 100%;
+        font-size: 15px;
+        line-height: 1.5;
     }
 
     .features {
@@ -1650,6 +1719,11 @@ img {
     .features-grid {
         grid-template-columns: 1fr;
         padding: 0 16px;
+        gap: 12px;
+    }
+
+    .feature-card {
+        padding: 24px;
     }
 
     .ways-to-invest {
@@ -1658,11 +1732,12 @@ img {
 
     .invest-cards {
         grid-template-columns: 1fr;
+        padding: 0 12px;
     }
 
     .invest-card {
         height: auto;
-        min-height: 300px;
+        min-height: 200px;
     }
 
     .partners-track {
@@ -1698,33 +1773,33 @@ img {
     }
 
     .cta-section {
-        padding: 60px 0;
+        padding: 60px 20px;
         border-radius: 24px 24px 0 0;
     }
 
     .cta-section h2 {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
     }
 
     .cta-section p {
-        font-size: 14px;
-        padding: 0 16px;
+        font-size: 15px;
     }
 
     .footer-top-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 32px;
     }
 
     .footer-right-col {
+        grid-column: span 2;
         align-items: center;
     }
 
     .dark-footer {
-        padding: 48px 16px 32px;
+        padding: 48px 20px 32px;
         padding-bottom: calc(32px + env(safe-area-inset-bottom));
-        padding-left: calc(16px + env(safe-area-inset-left));
-        padding-right: calc(16px + env(safe-area-inset-right));
+        padding-left: calc(20px + env(safe-area-inset-left));
+        padding-right: calc(20px + env(safe-area-inset-right));
     }
 
     .footer-bottom-legal {
@@ -1738,23 +1813,22 @@ img {
 
 @media (max-width: 360px) {
     .nav {
-        padding: 8px 8px;
-        gap: 4px;
+        padding: 10px 12px;
+        gap: 6px;
     }
 
     .logo img {
         height: 20px;
     }
 
-    .btn-login,
     .btn-signup {
-        padding: 6px 10px;
-        font-size: 11px;
+        padding: 6px 12px;
+        font-size: 12px;
         min-height: 32px;
     }
 
     .hero {
-        margin: calc(56px + env(safe-area-inset-top)) 8px 16px;
+        margin: calc(60px + env(safe-area-inset-top)) 8px 16px;
     }
 
     .hero-content {
@@ -1762,7 +1836,7 @@ img {
     }
 
     .hero h1 {
-        font-size: 1.25rem;
+        font-size: 1.5rem;
     }
 }
 
@@ -1771,20 +1845,18 @@ img {
         padding: 0 24px;
     }
 
+    .header {
+        padding-top: env(safe-area-inset-top);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+
     .nav {
-        padding: 16px 24px;
-    }
-
-    .nav-links {
-        display: none;
-    }
-
-    .mobile-menu-btn {
-        display: flex;
+        padding: 14px 20px;
     }
 
     .hero {
-        margin: 90px 16px 32px;
+        margin: calc(80px + env(safe-area-inset-top)) 16px 32px;
     }
 
     .hero-container {
@@ -1798,8 +1870,8 @@ img {
 
     .eggs-content {
         flex-direction: column;
-        text-align: center;
-        gap: 32px;
+        text-align: left;
+        gap: 16px;
     }
 
     .eggs-text p {

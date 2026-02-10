@@ -278,7 +278,13 @@
                 <img src="images/auth/logo.svg" alt="Willow Wealth" height="30">
             </a>
             <ul class="nav-links">
-                <li class="mobile-menu-close" id="mobile-menu-close">&times;</li>
+                <li class="mobile-menu-header">
+                    <a href="index.html" class="logo">
+                        <img src="images/auth/logo.svg" alt="Willow Wealth" height="28">
+                    </a>
+                    <button class="mobile-menu-close" id="mobile-menu-close">&times;</button>
+                </li>
+                <li class="mobile-menu-divider"></li>
                 <li class="dropdown">
                     <a href="#" class="nav-link">Products <span class="arrow">&#9662;</span></a>
                     <div class="dropdown-menu">
@@ -291,6 +297,10 @@
                 <li><a href="https://www.willowwealth.com/how-it-works" class="nav-link" target="_blank" rel="noopener noreferrer">How it works</a></li>
                 <li><a href="https://www.willowwealth.com/articles" class="nav-link" target="_blank" rel="noopener noreferrer">Learn</a></li>
                 <li><a href="https://www.willowwealth.com/support" class="nav-link" target="_blank" rel="noopener noreferrer">Help center</a></li>
+                <li class="mobile-menu-actions">
+                    <a href="signup.html" class="btn-signup">Sign up</a>
+                    <a href="login.html" class="btn-login">Login</a>
+                </li>
             </ul>
             <div class="nav-actions">
                 <a href="login.html" class="btn-login">Login</a>
@@ -703,7 +713,21 @@
             if (overlay) overlay.addEventListener('click', closeMenu);
             if (closeBtn) closeBtn.addEventListener('click', closeMenu);
 
-            document.querySelectorAll('.nav-link').forEach(function(link) {
+            var dropdownLink = navLinks.querySelector('.dropdown > .nav-link');
+            if (dropdownLink) {
+                dropdownLink.addEventListener('click', function(e) {
+                    if (navLinks.classList.contains('mobile-active')) {
+                        e.preventDefault();
+                        var dropdownMenu = this.parentElement.querySelector('.dropdown-menu');
+                        if (dropdownMenu) {
+                            var isVisible = dropdownMenu.style.display === 'block';
+                            dropdownMenu.style.display = isVisible ? 'none' : 'block';
+                        }
+                    }
+                });
+            }
+
+            document.querySelectorAll('.nav-links > li:not(.dropdown) .nav-link').forEach(function(link) {
                 link.addEventListener('click', closeMenu);
             });
 
