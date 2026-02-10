@@ -1,0 +1,85 @@
+Update the signup flow and UI to exactly match the attached screenshots, including precise button colors and interaction states.
+
+AUTH FLOW ORDER (STRICT):
+1. After successful signup via Google, Apple, or Email, immediately redirect to:
+   /signup/terms-review
+2. After accepting the Terms of Use and clicking Continue, redirect to:
+   /signup/accreditation
+3. Do not allow skipping steps or redirecting to the dashboard early.
+
+––––––––––––––––––––
+TERMS OF USE AGREEMENT PAGE
+––––––––––––––––––––
+Route: /signup/terms-review
+
+Layout:
+- Center all content vertically and horizontally.
+- WillowWealth logo at top center.
+- Title: “Terms of Use Agreement”
+- Body text exactly as shown in the screenshots.
+
+Checkbox behavior:
+- Checkbox must be unchecked by default.
+- User must check it before continuing.
+
+Continue button states:
+- Default (disabled):
+  - Background: light gray
+  - Text color: gray
+  - Cursor: not-allowed
+- Enabled (after checkbox is checked):
+  - Background: light green
+  - Text color: dark text
+  - Cursor: pointer
+
+Footer:
+- “Copyright © 2026 Willow Wealth Inc.”
+
+––––––––––––––––––––
+ACCREDITED INVESTOR PAGE
+––––––––––––––––––––
+Route: /signup/accreditation
+
+Selectable option cards:
+- White background by default
+- Light border
+- Rounded corners
+- One option selectable at a time
+
+Option states:
+- Default:
+  - White background
+  - Dark text
+  - No checkmark
+- Selected:
+  - Dark green background
+  - White text
+  - Visible checkmark icon on the left
+  - Slight elevation or emphasis to show active state
+
+Continue button states:
+- Default (disabled):
+  - Background: light gray
+  - Text color: gray
+  - Cursor: not-allowed
+- Enabled (after option is selected):
+  - Background: light green
+  - Text color: dark text
+  - Cursor: pointer
+
+––––––––––––––––––––
+RESPONSIVENESS
+––––––––––––––––––––
+- Fully responsive across mobile (iOS/Android), tablets, laptops, and desktops.
+- Use max-width containers and responsive padding.
+- Ensure buttons and option cards resize properly on small screens.
+- No horizontal overflow or clipped text.
+
+––––––––––––––––––––
+TECHNICAL NOTES
+––––––––––––––––––––
+- Preserve authentication session across routes.
+- Do not re-trigger OAuth during onboarding.
+- Use route guards to prevent skipping steps.
+- Match spacing, font sizes, colors, and alignment exactly as in the screenshots.
+- Do not redesign or introduce new UI elements.
