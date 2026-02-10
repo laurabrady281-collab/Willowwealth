@@ -188,6 +188,30 @@
         .copyright-footer {
             margin-top: 4px;
         }
+        @media (max-width: 768px) {
+            .signup-main-content {
+                flex-direction: column;
+                gap: 40px;
+            }
+            .signup-left {
+                max-width: 100%;
+                padding: 0 16px;
+            }
+            .signup-right {
+                display: none;
+            }
+            .auth-legal-footer {
+                margin: 0 auto;
+            }
+        }
+        @media (max-width: 480px) {
+            .signup-layout {
+                padding: 24px 16px;
+            }
+            .btn-email-signup, .btn-social {
+                min-height: 44px;
+            }
+        }
     </style>
 </head>
 <body class="signup-page">

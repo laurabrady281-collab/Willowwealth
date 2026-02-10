@@ -85,6 +85,17 @@
             font-size: 16px;
             color: #64748b;
         }
+        @media (max-width: 768px) {
+            .dashboard-header { padding: 16px 20px; }
+            .dashboard-content h1 { font-size: clamp(1.5rem, 4vw, 2rem); }
+            .dashboard-content { padding: 40px 20px; }
+        }
+        @media (max-width: 480px) {
+            .dashboard-header { padding: 12px 16px; flex-wrap: wrap; gap: 12px; }
+            .dashboard-content { padding: 32px 16px; }
+            .dashboard-content p { font-size: 14px; }
+            .btn-logout { min-height: 44px; display: flex; align-items: center; }
+        }
     </style>
 </head>
 <body class="dashboard-page">

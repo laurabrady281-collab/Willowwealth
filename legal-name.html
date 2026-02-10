@@ -170,9 +170,18 @@
         }
 
         @media (max-width: 768px) {
-            .onboarding-left {
-                display: none;
-            }
+            .onboarding-left { display: none; }
+            .onboarding-right { padding: 24px 20px; }
+            .onboarding-header { margin-bottom: 40px; }
+            .onboarding-content h1 { font-size: clamp(1.5rem, 4vw, 2rem); }
+            .onboarding-content p { font-size: 14px; margin-bottom: 24px; }
+            .btn-continue { min-height: 44px; }
+        }
+        @media (max-width: 480px) {
+            .onboarding-right { padding: 16px; }
+            .onboarding-header { margin-bottom: 24px; }
+            .verification-banner { padding: 10px 16px; font-size: 13px; }
+            .onboarding-content { max-width: 100%; }
         }
     </style>
 </head>

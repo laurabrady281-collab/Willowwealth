@@ -183,6 +183,18 @@
             height: 100%;
             object-fit: contain;
         }
+
+        @media (max-width: 480px) {
+            .chat-modal-container {
+                width: calc(100vw - 24px);
+                bottom: 12px;
+                right: 12px;
+            }
+            .chat-prompt-floating {
+                width: 60px;
+                height: 60px;
+            }
+        }
     </style>
 </head>
 <body class="landing-page">
@@ -266,6 +278,7 @@
                 <img src="images/auth/logo.svg" alt="Willow Wealth" height="30">
             </a>
             <ul class="nav-links">
+                <li class="mobile-menu-close" id="mobile-menu-close">&times;</li>
                 <li class="dropdown">
                     <a href="#" class="nav-link">Products <span class="arrow">&#9662;</span></a>
                     <div class="dropdown-menu">
@@ -289,6 +302,7 @@
                 <span></span>
             </button>
         </nav>
+        <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
     </header>
 
     <section class="hero">
@@ -667,6 +681,38 @@
                 });
             }
         });
+    </script>
+    <script>
+        (function() {
+            var menuBtn = document.querySelector('.mobile-menu-btn');
+            var overlay = document.getElementById('mobile-menu-overlay');
+            var navLinks = document.querySelector('.nav-links');
+            var closeBtn = document.getElementById('mobile-menu-close');
+
+            function openMenu() {
+                navLinks.classList.add('mobile-active');
+                overlay.classList.add('active');
+            }
+
+            function closeMenu() {
+                navLinks.classList.remove('mobile-active');
+                overlay.classList.remove('active');
+            }
+
+            if (menuBtn) menuBtn.addEventListener('click', openMenu);
+            if (overlay) overlay.addEventListener('click', closeMenu);
+            if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+
+            document.querySelectorAll('.nav-link').forEach(function(link) {
+                link.addEventListener('click', closeMenu);
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 1024) {
+                    closeMenu();
+                }
+            });
+        })();
     </script>
     <script>
       window.intercomSettings = {
