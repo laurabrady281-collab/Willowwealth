@@ -433,8 +433,8 @@ img {
 }
 
 .feature-icon {
-    width: 60px;
-    height: 60px;
+    width: 68px;
+    height: 68px;
     margin-bottom: 28px;
     display: flex;
     align-items: center;
@@ -446,13 +446,11 @@ img {
 
 .feature-icon img {
     display: block;
-    width: 60px;
-    height: 60px;
+    width: 68px;
+    height: 68px;
     object-fit: contain;
-    transition: none;
-    animation: none;
-    opacity: 1;
-    clip-path: none;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .feature-card h6 {
