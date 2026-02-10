@@ -433,9 +433,9 @@ img {
 }
 
 .feature-icon {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 28px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -446,8 +446,8 @@ img {
 
 .feature-icon img {
     display: block;
-    width: 80px;
-    height: 80px;
+    width: 48px;
+    height: 48px;
     object-fit: contain;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
