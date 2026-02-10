@@ -651,7 +651,7 @@ img {
     gap: 100px;
     align-items: center;
     width: max-content;
-    animation: scrollRight 25s linear infinite;
+    animation: scrollRight 15s linear infinite;
     will-change: transform;
 }
 
