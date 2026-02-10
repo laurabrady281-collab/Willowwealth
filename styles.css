@@ -891,14 +891,19 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     padding: 12px;
     border: 1px solid #e5e7eb;
     border-radius: 9999px;
     background: white;
+    font-size: 14px;
     font-weight: 500;
+    color: #002e30;
     cursor: pointer;
     transition: background 0.2s;
+    width: 100%;
+    text-decoration: none;
+    box-sizing: border-box;
 }
 
 .btn-social:hover {
