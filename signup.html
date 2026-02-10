@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="images/auth/welcome-card-new.png" as="image">
     <style>
         .signup-page {
             background-color: #ffffff;
@@ -190,7 +191,7 @@
     </style>
 </head>
 <body class="signup-page">
-    <div id="page-loader" class="page-loader">
+    <div id="page-loader" class="page-loader" style="display:none;opacity:0;visibility:hidden;">
         <div class="loader-content">
             <svg class="loader-w" viewBox="0 0 100 100">
                 <path d="M20 30 L40 70 L50 50 L60 70 L80 30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
@@ -236,7 +237,7 @@
             
             <div class="signup-right">
                 <div class="welcome-card-container">
-                    <img src="images/auth/welcome-card-new.png" alt="Welcome" class="welcome-card-img">
+                    <img src="images/auth/welcome-card-new.png" alt="Welcome" class="welcome-card-img" loading="eager" fetchpriority="high" decoding="sync">
                 </div>
             </div>
         </div>
@@ -333,18 +334,6 @@
         }
     </script>
     <script>
-        // Page Loader Logic
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('page-loader');
-            if (loader) {
-                loader.classList.remove('active');
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 300);
-            }
-        });
-
-        // Show loader on link clicks
         document.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', function(e) {
                 const href = this.getAttribute('href');
