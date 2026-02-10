@@ -14,6 +14,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            color: #002e30;
         }
         .signup-layout {
             display: flex;
@@ -23,7 +24,7 @@
             margin: 0 auto;
             align-items: center;
             justify-content: center;
-            gap: 60px;
+            gap: 80px;
             padding: 40px 20px;
         }
         .signup-left {
@@ -32,8 +33,102 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            max-width: 450px;
+            max-width: 400px;
             padding: 0;
+            text-align: center;
+        }
+        .auth-logo {
+            margin-bottom: 32px;
+            display: block;
+        }
+        .auth-logo img {
+            height: 32px;
+            width: auto;
+        }
+        .signup-subtitle {
+            font-size: 14px;
+            color: #002e30;
+            margin-bottom: 32px;
+            font-weight: 500;
+        }
+        .social-auth {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 9999px;
+            background: white;
+            font-size: 14px;
+            font-weight: 500;
+            color: #002e30;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+        }
+        .btn-social:hover {
+            background: #f9fafb;
+        }
+        .auth-divider {
+            text-align: center;
+            margin: 16px 0;
+            position: relative;
+            width: 100%;
+        }
+        .auth-divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+        .auth-divider span {
+            position: relative;
+            z-index: 2;
+            background: #ffffff;
+            padding: 0 10px;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        .btn-email-signup {
+            width: 100%;
+            background: #013536;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        .btn-email-signup:hover {
+            opacity: 0.9;
+        }
+        .auth-footer-text {
+            font-size: 14px;
+            color: #002e30;
+            margin-bottom: 40px;
+        }
+        .auth-footer-text a {
+            color: #002e30;
+            text-decoration: underline;
+            font-weight: 600;
         }
         .signup-right {
             flex: 1;
@@ -41,11 +136,10 @@
             align-items: center;
             justify-content: center;
             padding: 0;
-            background-color: #ffffff;
         }
         .welcome-card-container {
             width: 100%;
-            max-width: 650px;
+            max-width: 500px;
             display: flex;
             justify-content: center;
         }
@@ -54,13 +148,23 @@
             height: auto;
             display: block;
             border-radius: 24px;
-            /* Box shadow removed or kept very subtle based on user's preference for 'visual match' */
         }
-        .checkbox-wrapper input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            margin-top: 4px;
-            accent-color: #013536;
+        .auth-legal-footer {
+            width: 100%;
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 12px;
+            color: #64748b;
+            border-top: none;
+            margin-top: auto;
+        }
+        .auth-legal-footer a {
+            color: #64748b;
+            text-decoration: underline;
+        }
+        .copyright-footer {
+            margin-top: 12px;
+            color: #94a3b8;
         }
     </style>
 </head>
@@ -72,54 +176,49 @@
             </svg>
         </div>
     </div>
+    
     <div class="signup-layout" id="signup-main-screen">
         <div class="signup-left">
-            <header class="signup-header">
-                <a href="index.html" class="auth-logo">
-                    <img src="images/auth/logo.svg" alt="WillowWealth" style="height: 32px; width: auto;">
-                </a>
-            </header>
+            <a href="index.html" class="auth-logo">
+                <img src="images/auth/logo.svg" alt="WillowWealth">
+            </a>
             
-            <main class="signup-content">
-                <p class="signup-subtitle">Access curated private market alternatives.</p>
-                
-                <div class="signup-form-container">
-                    <div class="social-auth">
-                        <button class="btn-social">
-                            <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" width="18">
-                            Sign up with Google
-                        </button>
-                        <button class="btn-social">
-                            <svg width="18" height="18" viewBox="0 0 384 512" style="margin-right: 8px;"><path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-                            Sign up with Apple
-                        </button>
-                    </div>
-                    
-                    <div class="auth-divider">
-                        <span>or</span>
-                    </div>
-                    
-                    <div class="signup-email-trigger">
-                        <img src="images/auth/btn-email-signup-new.png" alt="Sign up with email" id="show-email-signup" style="cursor: pointer; width: 100%; max-width: 400px; display: block; margin: 0 auto;">
-                    </div>
-                    
-                    <p class="auth-footer-text">
-                        Already have an account? <a href="login.html">Log in</a>
-                    </p>
-                    
-                    <p class="auth-legal">
-                        This site is protected by reCAPTCHA and the Google <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> apply.
-                    </p>
-                </div>
-            </main>
+            <p class="signup-subtitle">Access curated private market alternatives.</p>
+            
+            <div class="social-auth">
+                <button class="btn-social">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" width="18">
+                    Sign up with Google
+                </button>
+                <button class="btn-social">
+                    <svg width="18" height="18" viewBox="0 0 384 512"><path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+                    Sign up with Apple
+                </button>
+            </div>
+            
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+            
+            <button class="btn-email-signup" id="show-email-signup">Sign up with email</button>
+            
+            <p class="auth-footer-text">
+                Already have an account? <a href="login.html">Log in</a>
+            </p>
         </div>
         
         <div class="signup-right">
             <div class="welcome-card-container">
-                <img src="images/auth/welcome-card-new.png" alt="Welcome to WillowWealth" class="welcome-card-img">
+                <img src="images/auth/welcome-card-new.png" alt="Welcome" class="welcome-card-img">
             </div>
         </div>
     </div>
+
+    <!-- Legal Footer -->
+    <footer class="auth-legal-footer">
+        <p>This site is protected by reCAPTCHA and the Google <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> apply.</p>
+        <p class="copyright-footer">Copyright © 2026 Willow Wealth Inc.</p>
+    </footer>
 
     <!-- Email Signup Screen (hidden by default) -->
     <div class="email-signup-layout" id="email-signup-screen" style="display: none;">
