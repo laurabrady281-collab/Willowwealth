@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "nodemailer": "^7.0.13"
+    "bcryptjs": "^3.0.3",
+    "nodemailer": "^7.0.13",
+    "pg": "^8.18.0"
   }
 }

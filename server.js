@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
 
 const PORT = 5000;
 
@@ -12,8 +14,14 @@ const BASE_URL = process.env.REPLIT_DEV_DOMAIN
   ? `https://${process.env.REPLIT_DEV_DOMAIN}`
   : (process.env.BASE_URL || `http://localhost:${PORT}`);
 
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
 const sessions = {};
 const oauthStates = {};
+
+const ONBOARDING_STEPS = [
+    { key: 'legal_name_completed', page: '/legal-name.html' }
+];
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -45,7 +53,17 @@ function parseBody(req) {
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', () => {
             try {
-                resolve(JSON.parse(body));
+                const ct = req.headers['content-type'] || '';
+                if (ct.includes('application/x-www-form-urlencoded')) {
+                    const params = {};
+                    body.split('&').forEach(pair => {
+                        const [k, ...v] = pair.split('=');
+                        if (k) params[decodeURIComponent(k)] = decodeURIComponent(v.join('='));
+                    });
+                    resolve(params);
+                } else {
+                    resolve(JSON.parse(body));
+                }
             } catch (e) {
                 resolve({});
             }
@@ -68,9 +86,12 @@ function parseCookies(req) {
 
 function setSessionCookie(res, token) {
     const isSecure = BASE_URL.startsWith('https');
-    res.setHeader('Set-Cookie',
+    const existing = res.getHeader('Set-Cookie') || [];
+    const cookies = Array.isArray(existing) ? existing : (existing ? [existing] : []);
+    cookies.push(
         `session=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax${isSecure ? '; Secure' : ''}`
     );
+    res.setHeader('Set-Cookie', cookies);
 }
 
 function jsonResponse(res, statusCode, data) {
@@ -99,11 +120,74 @@ function parseQuery(url) {
 function setCookie(res, name, value, maxAge) {
     const isSecure = BASE_URL.startsWith('https');
     const existing = res.getHeader('Set-Cookie') || [];
-    const cookies = Array.isArray(existing) ? existing : [existing];
+    const cookies = Array.isArray(existing) ? existing : (existing ? [existing] : []);
     cookies.push(
         `${name}=${value}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax${isSecure ? '; Secure' : ''}`
     );
     res.setHeader('Set-Cookie', cookies);
+}
+
+async function findOrCreateUser({ email, name, picture, provider, providerId }) {
+    let user = (await pool.query('SELECT * FROM users WHERE email = $1', [email])).rows[0];
+    if (!user) {
+        const result = await pool.query(
+            `INSERT INTO users (email, name, picture, provider, provider_id)
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING *`,
+            [email, name, picture, provider, providerId]
+        );
+        user = result.rows[0];
+        console.log('Created new user:', email);
+    } else {
+        await pool.query(
+            `UPDATE users SET name = COALESCE($1, name), picture = COALESCE($2, picture), updated_at = NOW() WHERE id = $3`,
+            [name, picture, user.id]
+        );
+        user.name = name || user.name;
+        user.picture = picture || user.picture;
+        console.log('Existing user logged in:', email);
+    }
+    return user;
+}
+
+function getNextOnboardingStep(user) {
+    for (const step of ONBOARDING_STEPS) {
+        if (!user[step.key]) {
+            return step;
+        }
+    }
+    return null;
+}
+
+function getOnboardingRedirect(user) {
+    const nextStep = getNextOnboardingStep(user);
+    if (nextStep) return nextStep.page;
+    return '/dashboard.html';
+}
+
+async function createSessionForUser(res, user) {
+    const sessionToken = generateToken();
+    sessions[sessionToken] = {
+        userId: user.id,
+        provider: user.provider,
+        email: user.email,
+        name: user.name,
+        picture: user.picture,
+        created: Date.now()
+    };
+    setSessionCookie(res, sessionToken);
+    return sessionToken;
+}
+
+function getSessionUser(req) {
+    const cookies = parseCookies(req);
+    return sessions[cookies.session] || null;
+}
+
+async function getFullUser(sessionData) {
+    if (!sessionData || !sessionData.userId) return null;
+    const result = await pool.query('SELECT * FROM users WHERE id = $1', [sessionData.userId]);
+    return result.rows[0] || null;
 }
 
 async function handleGoogleAuth(req, res) {
@@ -117,9 +201,7 @@ async function handleGoogleAuth(req, res) {
 
     const state = generateToken();
     oauthStates[state] = { provider: 'google', mode, created: Date.now() };
-
     setTimeout(() => { delete oauthStates[state]; }, 600000);
-
     setCookie(res, 'oauth_state', state, 600);
 
     const redirectUri = `${BASE_URL}/auth/google/callback`;
@@ -143,7 +225,6 @@ async function handleGoogleAuth(req, res) {
 
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
     console.log('Full auth URL:', authUrl);
-
     redirect(res, authUrl);
 }
 
@@ -153,8 +234,7 @@ async function handleGoogleCallback(req, res) {
 
     if (error) {
         console.error('Google OAuth error:', error, 'Description:', error_description || 'none');
-        const mode = 'login';
-        return redirect(res, `/${mode}.html?error=auth_cancelled`);
+        return redirect(res, '/login.html?error=auth_cancelled');
     }
 
     const cookies = parseCookies(req);
@@ -210,21 +290,20 @@ async function handleGoogleCallback(req, res) {
         const userInfo = await userRes.json();
         console.log('Google OAuth success - user:', userInfo.email);
 
-        const sessionToken = generateToken();
-        sessions[sessionToken] = {
-            provider: 'google',
-            userId: userInfo.id,
+        const user = await findOrCreateUser({
             email: userInfo.email,
             name: userInfo.name,
             picture: userInfo.picture,
-            created: Date.now(),
-            mode: mode
-        };
+            provider: 'google',
+            providerId: userInfo.id
+        });
 
         setCookie(res, 'oauth_state', '', 0);
-        setSessionCookie(res, sessionToken);
+        await createSessionForUser(res, user);
 
-        redirect(res, '/dashboard.html');
+        const dest = getOnboardingRedirect(user);
+        console.log('Redirecting user to:', dest, '(onboarding_completed:', user.onboarding_completed, ')');
+        redirect(res, dest);
     } catch (err) {
         console.error('Google OAuth callback error:', err.message, err.stack);
         redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=auth_failed`);
@@ -284,23 +363,162 @@ async function handleAppleCallback(req, res) {
     redirect(res, '/login.html?error=apple_coming_soon');
 }
 
-async function handleAuthStatus(req, res) {
-    const cookies = parseCookies(req);
-    const session = sessions[cookies.session];
+async function handleEmailSignup(req, res) {
+    try {
+        const { firstName, lastName, email, password } = await parseBody(req);
 
-    if (session) {
+        if (!firstName || !lastName || !email || !password) {
+            return jsonResponse(res, 400, { success: false, error: 'All fields are required' });
+        }
+
+        const existing = (await pool.query('SELECT id FROM users WHERE email = $1', [email])).rows[0];
+        if (existing) {
+            return jsonResponse(res, 409, { success: false, error: 'An account with this email already exists' });
+        }
+
+        const passwordHash = await bcrypt.hash(password, 10);
+        const result = await pool.query(
+            `INSERT INTO users (email, name, provider, password_hash)
+             VALUES ($1, $2, 'email', $3)
+             RETURNING *`,
+            [email, `${firstName} ${lastName}`, passwordHash]
+        );
+        const user = result.rows[0];
+        console.log('Email signup - new user created:', email);
+
+        await createSessionForUser(res, user);
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Verify your WillowWealth account',
+            html: `
+                <h1>Welcome to WillowWealth</h1>
+                <p>Please click the link below to verify your email address and complete your setup:</p>
+                <a href="${BASE_URL}/verify-email.html" style="background-color: #002e30; color: white; padding: 14px 28px; text-decoration: none; border-radius: 50px; display: inline-block;">Verify Email Address</a>
+                <p>If you did not create an account, please ignore this email.</p>
+            `
+        };
+        transporter.sendMail(mailOptions).catch(err => {
+            console.error('Verification email failed:', err.message);
+        });
+
+        const dest = getOnboardingRedirect(user);
+        jsonResponse(res, 200, { success: true, redirect: dest });
+    } catch (error) {
+        console.error('Email signup error:', error);
+        jsonResponse(res, 500, { success: false, error: 'An error occurred during signup' });
+    }
+}
+
+async function handleEmailLogin(req, res) {
+    try {
+        const { email, password } = await parseBody(req);
+
+        if (!email || !password) {
+            return jsonResponse(res, 400, { success: false, error: 'Email and password are required' });
+        }
+
+        const user = (await pool.query('SELECT * FROM users WHERE email = $1 AND provider = $2', [email, 'email'])).rows[0];
+        if (!user) {
+            return jsonResponse(res, 401, { success: false, error: 'Invalid email or password' });
+        }
+
+        const valid = await bcrypt.compare(password, user.password_hash);
+        if (!valid) {
+            return jsonResponse(res, 401, { success: false, error: 'Invalid email or password' });
+        }
+
+        console.log('Email login success:', email);
+        await createSessionForUser(res, user);
+
+        const dest = getOnboardingRedirect(user);
+        jsonResponse(res, 200, { success: true, redirect: dest });
+    } catch (error) {
+        console.error('Email login error:', error);
+        jsonResponse(res, 500, { success: false, error: 'An error occurred during login' });
+    }
+}
+
+async function handleAuthStatus(req, res) {
+    const sessionData = getSessionUser(req);
+
+    if (sessionData) {
+        const user = await getFullUser(sessionData);
+        if (!user) {
+            return jsonResponse(res, 200, { authenticated: false });
+        }
+
+        const nextStep = getNextOnboardingStep(user);
         jsonResponse(res, 200, {
             authenticated: true,
             user: {
-                email: session.email,
-                name: session.name,
-                picture: session.picture,
-                provider: session.provider
+                email: user.email,
+                name: user.name,
+                picture: user.picture,
+                provider: user.provider,
+                legalFirstName: user.legal_first_name,
+                legalLastName: user.legal_last_name
+            },
+            onboarding: {
+                completed: user.onboarding_completed,
+                legalNameCompleted: user.legal_name_completed,
+                nextStep: nextStep ? nextStep.page : null
             }
         });
     } else {
         jsonResponse(res, 200, { authenticated: false });
     }
+}
+
+async function handleSaveLegalName(req, res) {
+    const sessionData = getSessionUser(req);
+    if (!sessionData) {
+        return jsonResponse(res, 401, { success: false, error: 'Not authenticated' });
+    }
+
+    const { firstName, lastName } = await parseBody(req);
+    if (!firstName || !lastName || !firstName.trim() || !lastName.trim()) {
+        return jsonResponse(res, 400, { success: false, error: 'First and last name are required' });
+    }
+
+    await pool.query(
+        `UPDATE users SET legal_first_name = $1, legal_last_name = $2, legal_name_completed = TRUE, updated_at = NOW() WHERE id = $3`,
+        [firstName.trim(), lastName.trim(), sessionData.userId]
+    );
+
+    const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sessionData.userId])).rows[0];
+
+    const allComplete = ONBOARDING_STEPS.every(step => user[step.key]);
+    if (allComplete) {
+        await pool.query('UPDATE users SET onboarding_completed = TRUE, updated_at = NOW() WHERE id = $1', [user.id]);
+    }
+
+    const nextStep = getNextOnboardingStep(user);
+    const dest = nextStep ? nextStep.page : '/dashboard.html';
+
+    console.log('Legal name saved for user:', user.email, '- next:', dest);
+    jsonResponse(res, 200, { success: true, redirect: dest });
+}
+
+async function handleOnboardingStatus(req, res) {
+    const sessionData = getSessionUser(req);
+    if (!sessionData) {
+        return jsonResponse(res, 401, { success: false, error: 'Not authenticated' });
+    }
+
+    const user = await getFullUser(sessionData);
+    if (!user) {
+        return jsonResponse(res, 401, { success: false, error: 'User not found' });
+    }
+
+    const nextStep = getNextOnboardingStep(user);
+    jsonResponse(res, 200, {
+        completed: user.onboarding_completed,
+        legalNameCompleted: user.legal_name_completed,
+        nextStep: nextStep ? nextStep.page : null,
+        redirect: nextStep ? nextStep.page : '/dashboard.html'
+    });
 }
 
 async function handleLogout(req, res) {
@@ -314,6 +532,9 @@ async function handleLogout(req, res) {
     );
     redirect(res, '/index.html');
 }
+
+const PROTECTED_PAGES = ['/dashboard.html', '/legal-name.html', '/mobile-phone.html'];
+const ONBOARDING_PAGES = ['/legal-name.html', '/mobile-phone.html'];
 
 const server = http.createServer(async (req, res) => {
     const urlPath = req.url.split('?')[0];
@@ -344,10 +565,22 @@ const server = http.createServer(async (req, res) => {
         return handleLogout(req, res);
     }
 
+    if (req.method === 'POST' && urlPath === '/api/signup') {
+        return handleEmailSignup(req, res);
+    }
+    if (req.method === 'POST' && urlPath === '/api/login') {
+        return handleEmailLogin(req, res);
+    }
+    if (req.method === 'POST' && urlPath === '/api/onboarding/legal-name') {
+        return handleSaveLegalName(req, res);
+    }
+    if (req.method === 'GET' && urlPath === '/api/onboarding/status') {
+        return handleOnboardingStatus(req, res);
+    }
+
     if (req.method === 'POST' && urlPath === '/send-verification') {
         try {
             const { email } = await parseBody(req);
-
             const mailOptions = {
                 from: process.env.EMAIL_USER,
                 to: email,
@@ -359,7 +592,6 @@ const server = http.createServer(async (req, res) => {
                     <p>If you did not create an account, please ignore this email.</p>
                 `
             };
-
             await transporter.sendMail(mailOptions);
             jsonResponse(res, 200, { success: true });
         } catch (error) {
@@ -367,6 +599,33 @@ const server = http.createServer(async (req, res) => {
             jsonResponse(res, 500, { success: false, error: error.message });
         }
         return;
+    }
+
+    if (req.method === 'GET' && PROTECTED_PAGES.includes(urlPath)) {
+        const sessionData = getSessionUser(req);
+
+        if (!sessionData) {
+            return redirect(res, '/login.html');
+        }
+
+        const user = await getFullUser(sessionData);
+        if (!user) {
+            return redirect(res, '/login.html');
+        }
+
+        const correctPage = getOnboardingRedirect(user);
+
+        if (urlPath === '/dashboard.html' && !user.onboarding_completed) {
+            return redirect(res, correctPage);
+        }
+
+        if (ONBOARDING_PAGES.includes(urlPath) && user.onboarding_completed) {
+            return redirect(res, '/dashboard.html');
+        }
+
+        if (ONBOARDING_PAGES.includes(urlPath) && urlPath !== correctPage) {
+            return redirect(res, correctPage);
+        }
     }
 
     let filePath = urlPath === '/' ? '/index.html' : urlPath;
@@ -395,6 +654,8 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running at ${BASE_URL}`);
+    console.log(`Database: connected`);
     console.log(`Google OAuth: ${GOOGLE_CLIENT_ID ? 'configured' : 'NOT configured - set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET'}`);
     console.log(`Apple OAuth: placeholder ready for future integration`);
+    console.log(`Onboarding steps: ${ONBOARDING_STEPS.map(s => s.key).join(', ')}`);
 });
