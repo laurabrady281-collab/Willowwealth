@@ -346,9 +346,10 @@ img {
 
 .hero h1 {
     font-size: clamp(1.75rem, 5vw, 3rem);
-    font-weight: 600;
+    font-weight: 400;
     line-height: 1.2;
     margin-bottom: 24px;
+    letter-spacing: -0.01em;
 }
 
 .hero p {
