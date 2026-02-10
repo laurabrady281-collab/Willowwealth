@@ -433,8 +433,8 @@ img {
 }
 
 .feature-icon {
-    width: 68px;
-    height: 68px;
+    width: 80px;
+    height: 80px;
     margin-bottom: 28px;
     display: flex;
     align-items: center;
@@ -446,8 +446,8 @@ img {
 
 .feature-icon img {
     display: block;
-    width: 68px;
-    height: 68px;
+    width: 80px;
+    height: 80px;
     object-fit: contain;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
