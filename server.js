@@ -5,11 +5,16 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const PORT = 5000;
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID;
+const APPLE_TEAM_ID = process.env.APPLE_TEAM_ID;
+const APPLE_KEY_ID = process.env.APPLE_KEY_ID;
+const APPLE_PRIVATE_KEY = (process.env.APPLE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
 const BASE_URL = process.env.REPLIT_DEV_DOMAIN
   ? `https://${process.env.REPLIT_DEV_DOMAIN}`
   : (process.env.BASE_URL || `http://localhost:${PORT}`);
@@ -329,14 +334,91 @@ async function handleGoogleCallback(req, res) {
     }
 }
 
+function generateAppleClientSecret() {
+    const now = Math.floor(Date.now() / 1000);
+    const payload = {
+        iss: APPLE_TEAM_ID,
+        iat: now,
+        exp: now + 15777000,
+        aud: 'https://appleid.apple.com',
+        sub: APPLE_CLIENT_ID
+    };
+    return jwt.sign(payload, APPLE_PRIVATE_KEY, {
+        algorithm: 'ES256',
+        header: { alg: 'ES256', kid: APPLE_KEY_ID }
+    });
+}
+
+let applePublicKeysCache = null;
+let appleKeysCacheTime = 0;
+
+async function getApplePublicKeys() {
+    if (applePublicKeysCache && Date.now() - appleKeysCacheTime < 3600000) {
+        return applePublicKeysCache;
+    }
+    const res = await fetch('https://appleid.apple.com/auth/keys');
+    const data = await res.json();
+    applePublicKeysCache = data.keys;
+    appleKeysCacheTime = Date.now();
+    return applePublicKeysCache;
+}
+
+async function verifyAppleIdToken(idToken) {
+    const decoded = jwt.decode(idToken, { complete: true });
+    if (!decoded) throw new Error('Invalid Apple ID token');
+
+    const keys = await getApplePublicKeys();
+    const matchingKey = keys.find(k => k.kid === decoded.header.kid);
+    if (!matchingKey) throw new Error('No matching Apple public key found');
+
+    const publicKey = crypto.createPublicKey({
+        key: matchingKey,
+        format: 'jwk'
+    });
+
+    const verified = jwt.verify(idToken, publicKey, {
+        algorithms: ['RS256'],
+        issuer: 'https://appleid.apple.com',
+        audience: APPLE_CLIENT_ID
+    });
+
+    return verified;
+}
+
+async function exchangeAppleCode(code) {
+    const clientSecret = generateAppleClientSecret();
+    const params = new URLSearchParams({
+        client_id: APPLE_CLIENT_ID,
+        client_secret: clientSecret,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: `${BASE_URL}/auth/apple/callback`
+    });
+
+    const tokenRes = await fetch('https://appleid.apple.com/auth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+    });
+
+    if (!tokenRes.ok) {
+        const errBody = await tokenRes.text();
+        console.error('Apple token exchange failed (status', tokenRes.status, '):', errBody);
+        throw new Error('Apple token exchange failed');
+    }
+
+    return await tokenRes.json();
+}
+
 async function handleAppleAuth(req, res) {
     const query = parseQuery(req.url);
     const mode = query.mode || 'login';
 
-    const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID;
-    if (!APPLE_CLIENT_ID) {
-        console.log('Apple Sign-In not configured - redirecting back with notice');
-        return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=apple_coming_soon`);
+    if (!APPLE_CLIENT_ID || !APPLE_TEAM_ID || !APPLE_KEY_ID || !APPLE_PRIVATE_KEY) {
+        console.error('Apple Sign-In not configured. APPLE_CLIENT_ID:', !!APPLE_CLIENT_ID,
+            'APPLE_TEAM_ID:', !!APPLE_TEAM_ID, 'APPLE_KEY_ID:', !!APPLE_KEY_ID,
+            'APPLE_PRIVATE_KEY:', !!APPLE_PRIVATE_KEY);
+        return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=apple_not_configured`);
     }
 
     const state = generateToken();
@@ -358,7 +440,7 @@ async function handleAppleAuth(req, res) {
 
 async function handleAppleCallback(req, res) {
     const body = await parseBody(req);
-    const { code, state, id_token, error: appleError } = body;
+    const { code, state, id_token, user: userJson, error: appleError } = body;
 
     if (appleError) {
         console.error('Apple OAuth error:', appleError);
@@ -376,10 +458,79 @@ async function handleAppleCallback(req, res) {
     if (!stateData || stateData.provider !== 'apple') {
         return redirect(res, '/login.html?error=invalid_state');
     }
+    const mode = stateData.mode || 'login';
     delete oauthStates[state];
-
     setCookie(res, 'oauth_state', '', 0);
-    redirect(res, '/login.html?error=apple_coming_soon');
+
+    try {
+        if (!code) {
+            console.error('Apple callback: no authorization code received');
+            return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=auth_failed`);
+        }
+
+        const tokenData = await exchangeAppleCode(code);
+        const verifiedToken = tokenData.id_token;
+
+        if (!verifiedToken) {
+            console.error('Apple callback: no id_token in token response');
+            return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=auth_failed`);
+        }
+
+        const appleUser = await verifyAppleIdToken(verifiedToken);
+        const email = appleUser.email;
+
+        if (!email) {
+            console.error('Apple Sign-In: no email in token');
+            return redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=auth_failed`);
+        }
+
+        let userName = null;
+        if (userJson) {
+            try {
+                const parsed = typeof userJson === 'string' ? JSON.parse(userJson) : userJson;
+                if (parsed.name) {
+                    const first = parsed.name.firstName || '';
+                    const last = parsed.name.lastName || '';
+                    userName = `${first} ${last}`.trim() || null;
+                }
+            } catch (e) {
+                console.log('Could not parse Apple user data:', e.message);
+            }
+        }
+
+        console.log('Apple OAuth success - email:', email, '- mode:', mode);
+
+        if (mode === 'login') {
+            const existing = (await pool.query('SELECT * FROM users WHERE email = $1', [email])).rows[0];
+            if (!existing) {
+                console.log('Apple login attempt but no account found for:', email);
+                return redirect(res, '/login.html?error=no_account');
+            }
+            if (userName) {
+                await pool.query('UPDATE users SET name = COALESCE($1, name), updated_at = NOW() WHERE id = $2', [userName, existing.id]);
+                existing.name = userName || existing.name;
+            }
+            await createSessionForUser(res, existing);
+            const dest = getOnboardingRedirect(existing);
+            console.log('Apple login: redirecting existing user to:', dest);
+            redirect(res, dest);
+        } else {
+            const user = await findOrCreateUser({
+                email: email,
+                name: userName,
+                picture: null,
+                provider: 'apple',
+                providerId: appleUser.sub
+            });
+            await createSessionForUser(res, user);
+            const dest = getOnboardingRedirect(user);
+            console.log('Apple signup: redirecting user to:', dest, '(onboarding_completed:', user.onboarding_completed, ')');
+            redirect(res, dest);
+        }
+    } catch (err) {
+        console.error('Apple OAuth callback error:', err.message, err.stack);
+        redirect(res, `/${mode === 'signup' ? 'signup' : 'login'}.html?error=auth_failed`);
+    }
 }
 
 async function handleEmailSignup(req, res) {
@@ -749,6 +900,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running at ${BASE_URL}`);
     console.log(`Database: connected`);
     console.log(`Google OAuth: ${GOOGLE_CLIENT_ID ? 'configured' : 'NOT configured - set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET'}`);
-    console.log(`Apple OAuth: placeholder ready for future integration`);
+    console.log(`Apple OAuth: ${APPLE_CLIENT_ID ? 'configured' : 'NOT configured - set APPLE_CLIENT_ID, APPLE_TEAM_ID, APPLE_KEY_ID, APPLE_PRIVATE_KEY'}`);
     console.log(`Onboarding steps: ${ONBOARDING_STEPS.map(s => s.key).join(', ')}`);
 });

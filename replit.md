@@ -2,7 +2,7 @@
 
 ## Overview
 
-WillowWealth is a marketing website for a private markets investment platform. The site serves as a landing page and includes authentication (Google OAuth, Apple Sign-In placeholder, email/password), a mandatory 3-step onboarding flow (terms acceptance → accreditation → legal name confirmation), and a user dashboard.
+WillowWealth is a marketing website for a private markets investment platform. The site serves as a landing page and includes authentication (Google OAuth, Apple Sign-In, email/password), a mandatory 3-step onboarding flow (terms acceptance → accreditation → legal name confirmation), and a user dashboard.
 
 ## User Preferences
 
@@ -27,7 +27,7 @@ Preferred communication style: Simple, everyday language.
 - **Fallback Routing**: Returns `index.html` for any unmatched routes (SPA-style fallback)
 - **Port Configuration**: Runs on port 5000, bound to 0.0.0.0 for external access
 - **OAuth Authentication**: Google OAuth 2.0 implemented with CSRF-protected state parameter (cookie-bound), token exchange, and session management
-- **Apple Sign-In**: Placeholder ready with same interface pattern; needs APPLE_CLIENT_ID credentials to activate
+- **Apple Sign-In**: Full OAuth 2.0 implementation with JWT client secret generation, id_token verification via Apple's JWKS, login/signup mode separation
 - **Email Auth**: Signup with bcrypt-hashed passwords, login with credential validation
 - **Email Verification**: Uses nodemailer with Gmail transporter (EMAIL_USER, EMAIL_PASS env vars)
 - **Session Management**: In-memory session store with HttpOnly cookies, 24-hour expiry
@@ -102,7 +102,10 @@ Preferred communication style: Simple, everyday language.
 - `EMAIL_PASS` - Gmail app password for email sending
 - `GOOGLE_CLIENT_ID` - Google OAuth Client ID (required for Google Sign-In)
 - `GOOGLE_CLIENT_SECRET` - Google OAuth Client Secret (required for Google Sign-In)
-- `APPLE_CLIENT_ID` - Apple Service ID (future, for Apple Sign-In)
+- `APPLE_CLIENT_ID` - Apple Service ID (required for Apple Sign-In)
+- `APPLE_TEAM_ID` - Apple Developer Team ID (required for Apple Sign-In)
+- `APPLE_KEY_ID` - Apple Sign-In Key ID (required for Apple Sign-In)
+- `APPLE_PRIVATE_KEY` - Apple Sign-In private key .p8 contents (required for Apple Sign-In)
 
 ### Branding Assets
 - JSON configuration files in `attached_assets/` contain brand specifications (colors, typography) for reference
