@@ -663,7 +663,7 @@ img {
 }
 
 .partners-track img {
-    height: 70px;
+    height: 90px;
     width: auto;
     object-fit: contain;
     filter: contrast(1.1) brightness(1.05);
@@ -1750,7 +1750,7 @@ img {
     }
 
     .partners-track img {
-        height: 45px;
+        height: 65px;
     }
 
     .dual-feature-section {
@@ -1947,7 +1947,7 @@ img {
     }
 
     .partners-track img {
-        height: 55px;
+        height: 75px;
     }
 
     .dual-feature-section {
