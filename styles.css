@@ -318,7 +318,7 @@ img {
 
 .hero-container {
     position: relative;
-    min-height: 500px;
+    min-height: 520px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1648,29 +1648,36 @@ img {
     }
 
     .hero {
-        margin: calc(70px + env(safe-area-inset-top)) 12px 24px;
+        margin: calc(68px + env(safe-area-inset-top)) 12px 24px;
+        margin-left: calc(12px + env(safe-area-inset-left));
+        margin-right: calc(12px + env(safe-area-inset-right));
+    }
+
+    .hero .container {
+        padding: 0;
     }
 
     .hero-container {
-        min-height: 340px;
-        border-radius: 20px;
+        min-height: calc(78vh - env(safe-area-inset-top) - 68px);
+        min-height: calc(78svh - env(safe-area-inset-top) - 68px);
+        border-radius: 24px;
         width: 100%;
     }
 
     .hero-content {
-        padding: 40px 24px;
+        padding: 48px 28px 56px;
     }
 
     .hero h1 {
-        font-size: 1.75rem;
-        margin-bottom: 16px;
-        line-height: 1.2;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        line-height: 1.15;
     }
 
     .hero p {
         font-size: 15px;
-        margin-bottom: 28px;
-        line-height: 1.5;
+        margin-bottom: 32px;
+        line-height: 1.55;
     }
 
     .hero p br {
@@ -1678,8 +1685,8 @@ img {
     }
 
     .btn-primary {
-        font-size: 14px;
-        padding: 14px 28px;
+        font-size: 15px;
+        padding: 14px 32px;
     }
 
     .eggs-section {
@@ -1818,15 +1825,22 @@ img {
     }
 
     .hero {
-        margin: calc(60px + env(safe-area-inset-top)) 8px 16px;
+        margin: calc(58px + env(safe-area-inset-top)) 8px 16px;
+        margin-left: calc(8px + env(safe-area-inset-left));
+        margin-right: calc(8px + env(safe-area-inset-right));
+    }
+
+    .hero-container {
+        min-height: calc(75vh - env(safe-area-inset-top) - 58px);
+        min-height: calc(75svh - env(safe-area-inset-top) - 58px);
     }
 
     .hero-content {
-        padding: 32px 16px;
+        padding: 36px 20px 48px;
     }
 
     .hero h1 {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
     }
 }
 
@@ -1846,16 +1860,28 @@ img {
     }
 
     .hero {
-        margin: calc(80px + env(safe-area-inset-top)) 16px 32px;
+        margin: calc(76px + env(safe-area-inset-top)) 16px 32px;
+        margin-left: calc(16px + env(safe-area-inset-left));
+        margin-right: calc(16px + env(safe-area-inset-right));
+    }
+
+    .hero .container {
+        padding: 0;
     }
 
     .hero-container {
-        min-height: 400px;
-        border-radius: 20px;
+        min-height: calc(70vh - env(safe-area-inset-top) - 76px);
+        min-height: calc(70svh - env(safe-area-inset-top) - 76px);
+        border-radius: 24px;
+        width: 100%;
     }
 
     .hero-content {
-        padding: 60px 20px;
+        padding: 60px 32px;
+    }
+
+    .hero h1 {
+        font-size: 2.25rem;
     }
 
     .eggs-content {
