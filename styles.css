@@ -1347,10 +1347,11 @@ img {
 
 /* CTA Section */
 .cta-section {
-    padding: 120px 0;
-    background: #335859;
+    padding: 120px 0 80px;
+    background: #002b28;
     text-align: center;
     margin-top: 40px;
+    border-radius: 40px 40px 0 0;
 }
 
 .cta-section h2 {
@@ -1365,10 +1366,13 @@ img {
 }
 
 .cta-section p {
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.6);
     margin-bottom: 40px;
     line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .btn-signup-cta {
@@ -1376,9 +1380,9 @@ img {
     background: #DFFA47;
     color: #001F20;
     text-decoration: none;
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 600;
-    padding: 18px 48px;
+    padding: 14px 36px;
     border-radius: 240px;
     transition: transform 0.2s, box-shadow 0.2s;
     min-height: 44px;
@@ -1393,7 +1397,7 @@ img {
 .dark-footer {
     background: #002b28;
     color: var(--white);
-    padding: 80px 0 40px;
+    padding: 60px 0 40px;
 }
 
 .footer-top-grid {
@@ -1404,12 +1408,10 @@ img {
 }
 
 .footer-col h4 {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     color: var(--white);
-    text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
 .footer-col ul {
@@ -1510,8 +1512,9 @@ img {
 
 .footer-address {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.7);
     margin-bottom: 40px;
+    margin-top: 20px;
 }
 
 .full-disclosure-wrapper {
