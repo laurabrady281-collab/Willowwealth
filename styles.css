@@ -1347,11 +1347,16 @@ img {
 
 /* CTA Section */
 .cta-section {
-    padding: 120px 0 80px;
+    padding: 120px 24px 80px;
     background: #002b28;
     text-align: center;
     margin-top: 40px;
     border-radius: 40px 40px 0 0;
+}
+
+.cta-section .container {
+    max-width: none;
+    padding: 0;
 }
 
 .cta-section h2 {
@@ -1397,7 +1402,12 @@ img {
 .dark-footer {
     background: #002b28;
     color: var(--white);
-    padding: 60px 0 40px;
+    padding: 60px 60px 40px;
+}
+
+.dark-footer .container {
+    max-width: none;
+    padding: 0;
 }
 
 .footer-top-grid {
