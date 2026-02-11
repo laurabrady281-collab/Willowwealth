@@ -102,7 +102,9 @@
             color: #002e30;
             font-size: 14px;
             font-weight: 500;
-            text-decoration: none;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            text-decoration-color: #d1d5db;
         }
         .twofa-support a:hover {
             text-decoration: underline;
@@ -316,6 +318,15 @@
         }
         .floating-input-group input::placeholder {
             color: transparent;
+        }
+        .floating-input-group .field-error {
+            font-size: 12px;
+            color: #DC2626;
+            padding: 4px 0 0;
+            display: none;
+        }
+        .floating-input-group.error .field-error {
+            display: block;
         }
         .error-msg {
             color: #dc2626;
@@ -574,6 +585,7 @@
         <div class="floating-input-group" id="totp-input-group">
             <label for="totp-code-input">Enter 6-digit code</label>
             <input type="text" id="totp-code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+            <div class="field-error" id="totp-field-error"></div>
         </div>
         <div class="error-msg" id="totp-error"></div>
         <button class="btn-continue" id="totp-verify-btn" disabled>Confirm verification code</button>
@@ -730,37 +742,64 @@
             grp.classList.remove('focused', 'has-value', 'error', 'valid');
             document.getElementById('totp-code-input').value = '';
             document.getElementById('totp-error').textContent = '';
+            document.getElementById('totp-field-error').textContent = '';
+            totpTouched = false;
         });
 
         var totpInput = document.getElementById('totp-code-input');
         var totpVerifyBtn = document.getElementById('totp-verify-btn');
         var totpGroup = document.getElementById('totp-input-group');
 
+        var totpFieldError = document.getElementById('totp-field-error');
+        var totpTouched = false;
+
+        function validateTotpField() {
+            var val = totpInput.value;
+            if (val.length === 0) {
+                totpGroup.classList.add('error');
+                totpGroup.classList.remove('valid');
+                totpFieldError.textContent = 'This field is required';
+                return false;
+            } else if (val.length < 6) {
+                totpGroup.classList.add('error');
+                totpGroup.classList.remove('valid');
+                totpFieldError.textContent = 'Code must be 6 digits';
+                return false;
+            } else {
+                totpGroup.classList.remove('error');
+                totpGroup.classList.add('valid');
+                totpFieldError.textContent = '';
+                return true;
+            }
+        }
+
         totpInput.addEventListener('focus', function() {
             totpGroup.classList.add('focused');
-            totpGroup.classList.remove('error');
+            if (!totpTouched) {
+                totpGroup.classList.remove('error');
+                totpFieldError.textContent = '';
+            }
         });
         totpInput.addEventListener('blur', function() {
             totpGroup.classList.remove('focused');
+            totpTouched = true;
             if (this.value.length > 0) {
                 totpGroup.classList.add('has-value');
             } else {
                 totpGroup.classList.remove('has-value');
             }
+            validateTotpField();
         });
         totpInput.addEventListener('input', function() {
             this.value = this.value.replace(/\D/g, '').slice(0, 6);
             totpVerifyBtn.disabled = this.value.length !== 6;
-            totpGroup.classList.remove('error');
             if (this.value.length > 0) {
                 totpGroup.classList.add('has-value');
             } else {
                 totpGroup.classList.remove('has-value');
             }
-            if (this.value.length === 6) {
-                totpGroup.classList.add('valid');
-            } else {
-                totpGroup.classList.remove('valid');
+            if (totpTouched) {
+                validateTotpField();
             }
         });
 
