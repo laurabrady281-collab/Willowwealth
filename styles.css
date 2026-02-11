@@ -11,7 +11,7 @@
     --text-primary: #002E30;
     --white: #ffffff;
     --light-gray: #f5f7f7;
-    --yellow: #d4f057;
+    --yellow: #DFFA47;
 }
 
 html, body {
@@ -362,21 +362,20 @@ img {
 
 .btn-primary {
     display: inline-block;
-    background: var(--yellow);
-    color: #003a2e;
+    background: #DFFA47;
+    color: #001F20;
     text-decoration: none;
     font-size: 18px;
     font-weight: 600;
     padding: 18px 48px;
-    border-radius: 50px;
+    border-radius: 240px;
     transition: transform 0.2s, box-shadow 0.2s;
     min-height: 44px;
-    box-shadow: 0 4px 18px rgba(212, 240, 87, 0.35);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(212, 240, 87, 0.45);
+    box-shadow: 0 4px 20px rgba(223, 250, 71, 0.25);
 }
 
 /* Eggs Section */
@@ -513,9 +512,10 @@ img {
 
 .ways-to-invest h2 {
     font-size: clamp(1.75rem, 4vw, 3rem);
-    font-weight: 600;
+    font-weight: 500;
     margin-bottom: 20px;
     max-width: 800px;
+    line-height: 1.25;
     margin-left: auto;
     margin-right: auto;
 }
@@ -828,7 +828,7 @@ img {
 .plus-circle {
     width: 20px;
     height: 20px;
-    background: #E8F4A2;
+    background: #DFFA47;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1354,7 +1354,7 @@ img {
 /* CTA Section */
 .cta-section {
     padding: 120px 0;
-    background: #002b28;
+    background: #335859;
     text-align: center;
     border-radius: 40px 40px 0 0;
     margin-top: 40px;
@@ -1362,37 +1362,38 @@ img {
 
 .cta-section h2 {
     font-size: clamp(1.75rem, 4vw, 3rem);
-    font-weight: 600;
+    font-weight: 500;
     margin-bottom: 16px;
     color: var(--white);
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+    line-height: 1.25;
 }
 
 .cta-section p {
     font-size: 18px;
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 40px;
+    line-height: 1.6;
 }
 
 .btn-signup-cta {
     display: inline-block;
-    background: #d4f057;
-    color: #003a2e;
+    background: #DFFA47;
+    color: #001F20;
     text-decoration: none;
     font-size: 18px;
     font-weight: 600;
     padding: 18px 48px;
-    border-radius: 50px;
+    border-radius: 240px;
     transition: transform 0.2s, box-shadow 0.2s;
     min-height: 44px;
-    box-shadow: 0 4px 18px rgba(212, 240, 87, 0.35);
 }
 
 .btn-signup-cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(212, 240, 87, 0.3);
+    box-shadow: 0 4px 20px rgba(223, 250, 71, 0.25);
 }
 
 /* Footer Section */
