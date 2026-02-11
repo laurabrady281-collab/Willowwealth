@@ -48,7 +48,9 @@ Preferred communication style: Simple, everyday language.
 - **Page**: `/login/twofa` - 2FA method selection (Authenticator or Text/SMS)
 - **Flow**: After onboarding complete → 2FA setup required → then dashboard access
 - **Enforcement**: Server redirects dashboard access to 2FA page if `two_factor_enabled` is false
-- **API**: `POST /api/2fa/setup` marks 2FA as complete
+- **API**: Multiple endpoints for TOTP and SMS setup flows
+- **Authenticator**: Real TOTP with QR code generation (otpauth library), secret stored in DB, code verification with 1-step window
+- **SMS**: Twilio integration with email fallback, 6-digit OTP with 10-min expiry and 5-attempt limit
 - **Returning Users**: If 2FA already enabled, skip setup page entirely
 
 ### Auth Routes
@@ -71,6 +73,10 @@ Preferred communication style: Simple, everyday language.
 - `GET /api/verify-email?token=` - Handles email verification link clicks, marks user as verified
 - `GET /api/email-verification-status` - Returns email verification status for polling
 - `POST /api/2fa/setup` - Marks 2FA as complete (requires auth, accepts method: 'authenticator' or 'sms')
+- `GET /api/2fa/totp-setup` - Generates TOTP secret and QR code for authenticator setup
+- `POST /api/2fa/totp-verify` - Verifies TOTP code from authenticator app
+- `POST /api/2fa/sms-send` - Sends SMS verification code (Twilio with email fallback)
+- `POST /api/2fa/sms-verify` - Verifies SMS code, completes 2FA setup
 
 ### Database Schema (PostgreSQL)
 - **users** table:

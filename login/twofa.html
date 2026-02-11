@@ -22,7 +22,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             padding: 40px 20px 0;
         }
         .twofa-logo {
@@ -45,6 +44,12 @@
             color: #64748b;
             text-align: center;
             margin-bottom: 32px;
+            max-width: 460px;
+            line-height: 1.5;
+        }
+        .twofa-subtitle a {
+            color: #002e30;
+            text-decoration: underline;
         }
         .twofa-options {
             width: 100%;
@@ -57,7 +62,7 @@
             border: 1px solid #e2e8f0;
             padding: 20px 24px;
             cursor: pointer;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s;
             text-decoration: none;
             color: inherit;
             display: block;
@@ -117,10 +122,7 @@
         }
         .loading-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(255,255,255,0.9);
             display: flex;
             align-items: center;
@@ -129,19 +131,194 @@
             font-size: 16px;
             color: #64748b;
         }
+        .screen { display: none; }
+        .screen.active { display: flex; }
+        .back-arrow {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            font-size: 24px;
+            color: #1a2b23;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 300;
+            line-height: 1;
+            z-index: 5;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .back-arrow:hover {
+            color: #002e30;
+        }
+        .qr-container {
+            margin: 24px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .qr-container img {
+            width: 200px;
+            height: 200px;
+            pointer-events: auto;
+        }
+        .totp-text-code {
+            width: 100%;
+            max-width: 400px;
+            margin-top: 16px;
+        }
+        .totp-text-code-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a2b23;
+            margin-bottom: 8px;
+        }
+        .totp-text-code-box {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .totp-text-code-box .code-label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 2px;
+        }
+        .totp-text-code-box .code-value {
+            font-size: 14px;
+            color: #1a2b23;
+            word-break: break-all;
+            font-family: monospace;
+        }
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            padding: 4px;
+            flex-shrink: 0;
+        }
+        .copy-btn:hover { color: #002e30; }
+        .btn-continue {
+            width: 100%;
+            max-width: 400px;
+            height: 48px;
+            background: #a2f2b7;
+            color: #1a2b23;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: opacity 0.2s;
+        }
+        .btn-continue:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-continue:hover:not(:disabled) {
+            opacity: 0.9;
+        }
+        .verify-input-group {
+            width: 100%;
+            max-width: 400px;
+            margin-top: 24px;
+        }
+        .verify-input-group label {
+            font-size: 14px;
+            color: #1a2b23;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .verify-input-group input {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 18px;
+            letter-spacing: 8px;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .verify-input-group input:focus {
+            border-color: #002e30;
+        }
+        .error-msg {
+            color: #dc2626;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 12px;
+            min-height: 20px;
+        }
+        .phone-input-group {
+            width: 100%;
+            max-width: 400px;
+        }
+        .phone-input-wrapper {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 16px;
+            background: #fff;
+            transition: border-color 0.2s;
+        }
+        .phone-input-wrapper:focus-within {
+            border-color: #002e30;
+        }
+        .phone-input-label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 4px;
+        }
+        .phone-input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .country-flag {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .country-code-select {
+            border: none;
+            background: none;
+            font-size: 14px;
+            color: #1a2b23;
+            outline: none;
+            cursor: pointer;
+            padding: 0;
+            -webkit-appearance: none;
+            appearance: none;
+            width: auto;
+            min-width: 50px;
+        }
+        .phone-number-input {
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #1a2b23;
+            outline: none;
+            flex: 1;
+            min-width: 0;
+        }
+        .phone-number-input::placeholder {
+            color: #d1d5db;
+        }
         @media (max-width: 480px) {
-            .twofa-container {
-                padding: 32px 16px 0;
-            }
-            .twofa-title {
-                font-size: 20px;
-            }
-            .twofa-options {
-                max-width: 100%;
-            }
-            .twofa-option {
-                padding: 16px 20px;
-            }
+            .twofa-container { padding: 32px 16px 0; }
+            .twofa-title { font-size: 20px; }
+            .twofa-options, .totp-text-code, .btn-continue, .verify-input-group, .phone-input-group { max-width: 100%; }
+            .twofa-option { padding: 16px 20px; }
+            .back-arrow { top: 16px; left: 16px; }
         }
     </style>
 <style>*{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none}img{pointer-events:none;-webkit-user-drag:none;-khtml-user-drag:none;-moz-user-drag:none;-o-user-drag:none;user-drag:none}input,textarea,select,[contenteditable]{-webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text}</style>
@@ -157,16 +334,13 @@
     </div>
     <div id="auth-loading" class="loading-overlay">Loading...</div>
 
-    <div class="twofa-container" id="twofa-content" style="display: none;">
+    <!-- SCREEN 1: Method Selection -->
+    <div class="twofa-container screen" id="screen-select">
         <div class="twofa-logo">
-            <a href="/">
-                <img src="/images/auth/logo.svg" alt="WillowWealth">
-            </a>
+            <a href="/"><img src="/images/auth/logo.svg" alt="WillowWealth"></a>
         </div>
-
         <h1 class="twofa-title">Protect your account with two-factor authentication</h1>
         <p class="twofa-subtitle">Which method would you like to use?</p>
-
         <div class="twofa-options">
             <div class="twofa-option" id="option-authenticator">
                 <div class="twofa-option-title">Authenticator</div>
@@ -177,11 +351,153 @@
                 <div class="twofa-option-desc">Receive verification codes via text message</div>
             </div>
         </div>
-
         <div class="twofa-support">
             <a href="javascript:void(0)" onclick="if(window.Intercom){Intercom('show')}">Contact support</a>
         </div>
+        <div class="twofa-recaptcha">
+            This site is protected by reCAPTCHA and the<br>
+            Google <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+        </div>
+    </div>
 
+    <!-- SCREEN 2: Authenticator Setup -->
+    <div class="twofa-container screen" id="screen-authenticator">
+        <a class="back-arrow" id="back-to-select-auth">&lsaquo;</a>
+        <div class="twofa-logo">
+            <a href="/"><img src="/images/auth/logo.svg" alt="WillowWealth"></a>
+        </div>
+        <h1 class="twofa-title">Authenticator setup</h1>
+        <p class="twofa-subtitle">Scan the QR code using a supported authenticator app, such as <a href="https://support.google.com/accounts/answer/1066447" target="_blank">Google Authenticator</a>, <a href="https://www.microsoft.com/en-us/security/mobile-authenticator-app" target="_blank">Microsoft Authenticator</a>, or any other compatible app.</p>
+        <div class="qr-container">
+            <img id="totp-qr" src="" alt="QR Code">
+        </div>
+        <p class="twofa-subtitle" style="margin-bottom: 8px;">Trouble scanning? Enter the code below instead.</p>
+        <div class="totp-text-code">
+            <div class="totp-text-code-box">
+                <div>
+                    <div class="code-label">Two-factor text code</div>
+                    <div class="code-value" id="totp-uri"></div>
+                </div>
+                <button class="copy-btn" id="copy-totp-btn" title="Copy to clipboard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                </button>
+            </div>
+        </div>
+        <button class="btn-continue" id="totp-continue-btn">Continue</button>
+        <div class="twofa-support">
+            <a href="javascript:void(0)" onclick="if(window.Intercom){Intercom('show')}">Contact support</a>
+        </div>
+        <div class="twofa-recaptcha">
+            This site is protected by reCAPTCHA and the<br>
+            Google <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+        </div>
+    </div>
+
+    <!-- SCREEN 3: Authenticator Verify -->
+    <div class="twofa-container screen" id="screen-authenticator-verify">
+        <a class="back-arrow" id="back-to-authenticator">&lsaquo;</a>
+        <div class="twofa-logo">
+            <a href="/"><img src="/images/auth/logo.svg" alt="WillowWealth"></a>
+        </div>
+        <h1 class="twofa-title">Enter verification code</h1>
+        <p class="twofa-subtitle">Enter the 6-digit code from your authenticator app.</p>
+        <div class="verify-input-group">
+            <input type="text" id="totp-code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="000000" autocomplete="one-time-code">
+        </div>
+        <div class="error-msg" id="totp-error"></div>
+        <button class="btn-continue" id="totp-verify-btn" disabled>Verify</button>
+        <div class="twofa-support">
+            <a href="javascript:void(0)" onclick="if(window.Intercom){Intercom('show')}">Contact support</a>
+        </div>
+        <div class="twofa-recaptcha">
+            This site is protected by reCAPTCHA and the<br>
+            Google <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+        </div>
+    </div>
+
+    <!-- SCREEN 4: SMS Setup -->
+    <div class="twofa-container screen" id="screen-sms">
+        <a class="back-arrow" id="back-to-select-sms">&lsaquo;</a>
+        <div class="twofa-logo">
+            <a href="/"><img src="/images/auth/logo.svg" alt="WillowWealth"></a>
+        </div>
+        <h1 class="twofa-title">SMS authentication setup</h1>
+        <p class="twofa-subtitle">We will text a verification code to the number below.</p>
+        <div class="phone-input-group">
+            <div class="phone-input-wrapper">
+                <div class="phone-input-label">Mobile phone number</div>
+                <div class="phone-input-row">
+                    <span class="country-flag" id="country-flag">&#127482;&#127480;</span>
+                    <select class="country-code-select" id="country-code">
+                        <option value="+1">+1</option>
+                        <option value="+44">+44</option>
+                        <option value="+61">+61</option>
+                        <option value="+91">+91</option>
+                        <option value="+49">+49</option>
+                        <option value="+33">+33</option>
+                        <option value="+81">+81</option>
+                        <option value="+86">+86</option>
+                        <option value="+82">+82</option>
+                        <option value="+55">+55</option>
+                        <option value="+52">+52</option>
+                        <option value="+34">+34</option>
+                        <option value="+39">+39</option>
+                        <option value="+7">+7</option>
+                        <option value="+31">+31</option>
+                        <option value="+46">+46</option>
+                        <option value="+47">+47</option>
+                        <option value="+65">+65</option>
+                        <option value="+64">+64</option>
+                        <option value="+353">+353</option>
+                        <option value="+48">+48</option>
+                        <option value="+41">+41</option>
+                        <option value="+43">+43</option>
+                        <option value="+32">+32</option>
+                        <option value="+351">+351</option>
+                        <option value="+90">+90</option>
+                        <option value="+966">+966</option>
+                        <option value="+971">+971</option>
+                        <option value="+972">+972</option>
+                        <option value="+60">+60</option>
+                        <option value="+66">+66</option>
+                        <option value="+62">+62</option>
+                        <option value="+63">+63</option>
+                        <option value="+27">+27</option>
+                        <option value="+234">+234</option>
+                        <option value="+254">+254</option>
+                        <option value="+20">+20</option>
+                    </select>
+                    <input type="tel" class="phone-number-input" id="phone-number" placeholder="(555) 000-0000">
+                </div>
+            </div>
+        </div>
+        <div class="error-msg" id="sms-send-error"></div>
+        <button class="btn-continue" id="sms-send-btn">Send verification code</button>
+        <div class="twofa-support">
+            <a href="javascript:void(0)" onclick="if(window.Intercom){Intercom('show')}">Contact support</a>
+        </div>
+        <div class="twofa-recaptcha">
+            This site is protected by reCAPTCHA and the<br>
+            Google <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+        </div>
+    </div>
+
+    <!-- SCREEN 5: SMS Verify -->
+    <div class="twofa-container screen" id="screen-sms-verify">
+        <a class="back-arrow" id="back-to-sms">&lsaquo;</a>
+        <div class="twofa-logo">
+            <a href="/"><img src="/images/auth/logo.svg" alt="WillowWealth"></a>
+        </div>
+        <h1 class="twofa-title">Enter verification code</h1>
+        <p class="twofa-subtitle" id="sms-verify-subtitle">Enter the 6-digit code sent to your phone.</p>
+        <div class="verify-input-group">
+            <input type="text" id="sms-code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="000000" autocomplete="one-time-code">
+        </div>
+        <div class="error-msg" id="sms-verify-error"></div>
+        <button class="btn-continue" id="sms-verify-btn" disabled>Verify</button>
+        <div class="twofa-support">
+            <a href="javascript:void(0)" onclick="if(window.Intercom){Intercom('show')}">Contact support</a>
+        </div>
         <div class="twofa-recaptcha">
             This site is protected by reCAPTCHA and the<br>
             Google <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
@@ -193,60 +509,217 @@
     </footer>
 
     <script>
+        var currentOtpauthUrl = '';
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+            document.getElementById(id).classList.add('active');
+        }
+
         (async function() {
             try {
                 var res = await fetch('/auth/status');
                 var data = await res.json();
-
                 if (!data.authenticated) {
                     window.location.href = '/login.html';
                     return;
                 }
-
                 if (data.user.twoFactorEnabled) {
                     window.location.href = '/dashboard.html';
                     return;
                 }
-
                 if (!data.onboarding || !data.onboarding.completed) {
                     var dest = data.onboarding && data.onboarding.nextStep ? data.onboarding.nextStep : '/signup/terms-review';
                     window.location.href = dest;
                     return;
                 }
-
                 document.getElementById('auth-loading').style.display = 'none';
-                document.getElementById('twofa-content').style.display = 'flex';
+                showScreen('screen-select');
             } catch (err) {
                 console.error('Auth check failed:', err);
                 window.location.href = '/login.html';
             }
         })();
 
-        async function complete2FA(method) {
+        document.getElementById('option-authenticator').addEventListener('click', async function() {
+            showScreen('screen-authenticator');
             try {
-                var res = await fetch('/api/2fa/setup', {
+                var res = await fetch('/api/2fa/totp-setup');
+                var data = await res.json();
+                if (data.success) {
+                    document.getElementById('totp-qr').src = data.qrCode;
+                    document.getElementById('totp-uri').textContent = data.otpauthUrl;
+                    currentOtpauthUrl = data.otpauthUrl;
+                }
+            } catch (err) {
+                console.error('Failed to load TOTP setup:', err);
+            }
+        });
+
+        document.getElementById('option-sms').addEventListener('click', function() {
+            showScreen('screen-sms');
+        });
+
+        document.getElementById('back-to-select-auth').addEventListener('click', function() {
+            showScreen('screen-select');
+        });
+
+        document.getElementById('back-to-select-sms').addEventListener('click', function() {
+            showScreen('screen-select');
+        });
+
+        document.getElementById('copy-totp-btn').addEventListener('click', function() {
+            if (currentOtpauthUrl) {
+                navigator.clipboard.writeText(currentOtpauthUrl).then(function() {
+                    var btn = document.getElementById('copy-totp-btn');
+                    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+                    setTimeout(function() {
+                        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+                    }, 2000);
+                });
+            }
+        });
+
+        document.getElementById('totp-continue-btn').addEventListener('click', function() {
+            showScreen('screen-authenticator-verify');
+            document.getElementById('totp-code-input').value = '';
+            document.getElementById('totp-error').textContent = '';
+            document.getElementById('totp-code-input').focus();
+        });
+
+        document.getElementById('back-to-authenticator').addEventListener('click', function() {
+            showScreen('screen-authenticator');
+        });
+
+        var totpInput = document.getElementById('totp-code-input');
+        var totpVerifyBtn = document.getElementById('totp-verify-btn');
+        totpInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            totpVerifyBtn.disabled = this.value.length !== 6;
+        });
+
+        totpVerifyBtn.addEventListener('click', async function() {
+            var code = totpInput.value;
+            var errorEl = document.getElementById('totp-error');
+            errorEl.textContent = '';
+            totpVerifyBtn.disabled = true;
+            totpVerifyBtn.textContent = 'Verifying...';
+            try {
+                var res = await fetch('/api/2fa/totp-verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ method: method })
+                    body: JSON.stringify({ code: code })
                 });
                 var data = await res.json();
                 if (data.success) {
                     window.location.href = data.redirect || '/dashboard.html';
                 } else {
-                    alert(data.error || 'Something went wrong. Please try again.');
+                    errorEl.textContent = data.error || 'Invalid code. Please try again.';
+                    totpVerifyBtn.disabled = false;
+                    totpVerifyBtn.textContent = 'Verify';
                 }
             } catch (err) {
-                console.error('2FA setup error:', err);
-                alert('Something went wrong. Please try again.');
+                errorEl.textContent = 'Something went wrong. Please try again.';
+                totpVerifyBtn.disabled = false;
+                totpVerifyBtn.textContent = 'Verify';
             }
-        }
-
-        document.getElementById('option-authenticator').addEventListener('click', function() {
-            complete2FA('authenticator');
         });
 
-        document.getElementById('option-sms').addEventListener('click', function() {
-            complete2FA('sms');
+        var countryFlags = {
+            '+1': '\u{1F1FA}\u{1F1F8}', '+44': '\u{1F1EC}\u{1F1E7}', '+61': '\u{1F1E6}\u{1F1FA}',
+            '+91': '\u{1F1EE}\u{1F1F3}', '+49': '\u{1F1E9}\u{1F1EA}', '+33': '\u{1F1EB}\u{1F1F7}',
+            '+81': '\u{1F1EF}\u{1F1F5}', '+86': '\u{1F1E8}\u{1F1F3}', '+82': '\u{1F1F0}\u{1F1F7}',
+            '+55': '\u{1F1E7}\u{1F1F7}', '+52': '\u{1F1F2}\u{1F1FD}', '+34': '\u{1F1EA}\u{1F1F8}',
+            '+39': '\u{1F1EE}\u{1F1F9}', '+7': '\u{1F1F7}\u{1F1FA}', '+31': '\u{1F1F3}\u{1F1F1}',
+            '+46': '\u{1F1F8}\u{1F1EA}', '+47': '\u{1F1F3}\u{1F1F4}', '+65': '\u{1F1F8}\u{1F1EC}',
+            '+64': '\u{1F1F3}\u{1F1FF}', '+353': '\u{1F1EE}\u{1F1EA}', '+48': '\u{1F1F5}\u{1F1F1}',
+            '+41': '\u{1F1E8}\u{1F1ED}', '+43': '\u{1F1E6}\u{1F1F9}', '+32': '\u{1F1E7}\u{1F1EA}',
+            '+351': '\u{1F1F5}\u{1F1F9}', '+90': '\u{1F1F9}\u{1F1F7}', '+966': '\u{1F1F8}\u{1F1E6}',
+            '+971': '\u{1F1E6}\u{1F1EA}', '+972': '\u{1F1EE}\u{1F1F1}', '+60': '\u{1F1F2}\u{1F1FE}',
+            '+66': '\u{1F1F9}\u{1F1ED}', '+62': '\u{1F1EE}\u{1F1E9}', '+63': '\u{1F1F5}\u{1F1ED}',
+            '+27': '\u{1F1FF}\u{1F1E6}', '+234': '\u{1F1F3}\u{1F1EC}', '+254': '\u{1F1F0}\u{1F1EA}',
+            '+20': '\u{1F1EA}\u{1F1EC}'
+        };
+
+        document.getElementById('country-code').addEventListener('change', function() {
+            var flag = countryFlags[this.value] || '\u{1F3F3}';
+            document.getElementById('country-flag').textContent = flag;
+        });
+
+        var smsSendBtn = document.getElementById('sms-send-btn');
+        smsSendBtn.addEventListener('click', async function() {
+            var countryCode = document.getElementById('country-code').value;
+            var phoneNumber = document.getElementById('phone-number').value.trim();
+            var errorEl = document.getElementById('sms-send-error');
+            errorEl.textContent = '';
+
+            if (!phoneNumber || phoneNumber.replace(/\D/g, '').length < 7) {
+                errorEl.textContent = 'Please enter a valid phone number.';
+                return;
+            }
+
+            var fullPhone = countryCode + phoneNumber.replace(/\D/g, '');
+            smsSendBtn.disabled = true;
+            smsSendBtn.textContent = 'Sending...';
+
+            try {
+                var res = await fetch('/api/2fa/sms-send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: fullPhone })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    var maskedPhone = countryCode + ' ***' + phoneNumber.slice(-4);
+                    document.getElementById('sms-verify-subtitle').textContent = 'Enter the 6-digit code sent to ' + maskedPhone;
+                    showScreen('screen-sms-verify');
+                    document.getElementById('sms-code-input').focus();
+                } else {
+                    errorEl.textContent = data.error || 'Failed to send code. Please try again.';
+                }
+            } catch (err) {
+                errorEl.textContent = 'Something went wrong. Please try again.';
+            }
+            smsSendBtn.disabled = false;
+            smsSendBtn.textContent = 'Send verification code';
+        });
+
+        document.getElementById('back-to-sms').addEventListener('click', function() {
+            showScreen('screen-sms');
+        });
+
+        var smsInput = document.getElementById('sms-code-input');
+        var smsVerifyBtn = document.getElementById('sms-verify-btn');
+        smsInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            smsVerifyBtn.disabled = this.value.length !== 6;
+        });
+
+        smsVerifyBtn.addEventListener('click', async function() {
+            var code = smsInput.value;
+            var errorEl = document.getElementById('sms-verify-error');
+            errorEl.textContent = '';
+            smsVerifyBtn.disabled = true;
+            smsVerifyBtn.textContent = 'Verifying...';
+            try {
+                var res = await fetch('/api/2fa/sms-verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    window.location.href = data.redirect || '/dashboard.html';
+                } else {
+                    errorEl.textContent = data.error || 'Invalid code. Please try again.';
+                    smsVerifyBtn.disabled = false;
+                    smsVerifyBtn.textContent = 'Verify';
+                }
+            } catch (err) {
+                errorEl.textContent = 'Something went wrong. Please try again.';
+                smsVerifyBtn.disabled = false;
+                smsVerifyBtn.textContent = 'Verify';
+            }
         });
     </script>
 
@@ -290,16 +763,6 @@
                 loader.classList.remove('active');
                 setTimeout(function() { loader.style.display = 'none'; }, 300);
             }
-        });
-        document.querySelectorAll('a').forEach(function(link) {
-            link.addEventListener('click', function(e) {
-                var href = this.getAttribute('href');
-                var target = this.getAttribute('target');
-                if (href && !href.startsWith('#') && !href.startsWith('javascript') && target !== '_blank') {
-                    var loader = document.getElementById('page-loader');
-                    if (loader) { loader.style.display = 'flex'; setTimeout(function() { loader.classList.add('active'); }, 10); }
-                }
-            });
         });
     </script>
 </body>

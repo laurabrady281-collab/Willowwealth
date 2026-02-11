@@ -6,6 +6,8 @@ const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const OTPAuth = require('otpauth');
+const QRCode = require('qrcode');
 
 const PORT = 5000;
 
@@ -25,6 +27,7 @@ const sessions = {};
 const oauthStates = {};
 const twoFactorCodes = {};
 const emailVerificationTokens = {};
+const smsVerificationCodes = {};
 
 const ONBOARDING_STEPS = [
     { key: 'terms_accepted', page: '/signup/terms-review' },
@@ -928,8 +931,8 @@ const server = http.createServer(async (req, res) => {
                 return jsonResponse(res, 400, { success: false, error: 'Invalid 2FA method' });
             }
             await pool.query(
-                'UPDATE users SET two_factor_enabled = TRUE, updated_at = NOW() WHERE id = $1',
-                [sessionData.userId]
+                'UPDATE users SET two_factor_enabled = TRUE, two_factor_method = $1, updated_at = NOW() WHERE id = $2',
+                [method, sessionData.userId]
             );
             const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sessionData.userId])).rows[0];
             const dest = getOnboardingRedirect(user);
@@ -937,6 +940,224 @@ const server = http.createServer(async (req, res) => {
         } catch (error) {
             console.error('2FA setup error:', error);
             jsonResponse(res, 500, { success: false, error: 'An error occurred' });
+        }
+        return;
+    }
+
+    if (req.method === 'GET' && urlPath === '/api/2fa/totp-setup') {
+        try {
+            const sessionData = getSessionUser(req);
+            if (!sessionData) {
+                return jsonResponse(res, 401, { success: false, error: 'Not authenticated' });
+            }
+            const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [sessionData.userId]);
+            const user = userResult.rows[0];
+            if (!user) {
+                return jsonResponse(res, 404, { success: false, error: 'User not found' });
+            }
+
+            let secret = user.totp_secret;
+            if (!secret) {
+                const totpSecret = new OTPAuth.Secret({ size: 20 });
+                secret = totpSecret.base32;
+                await pool.query('UPDATE users SET totp_secret = $1, updated_at = NOW() WHERE id = $2', [secret, user.id]);
+            }
+
+            const totp = new OTPAuth.TOTP({
+                issuer: 'Willow Wealth',
+                label: user.email,
+                algorithm: 'SHA1',
+                digits: 6,
+                period: 30,
+                secret: OTPAuth.Secret.fromBase32(secret)
+            });
+
+            const otpauthUrl = totp.toString();
+            const qrDataUrl = await QRCode.toDataURL(otpauthUrl, { width: 200, margin: 2 });
+
+            jsonResponse(res, 200, {
+                success: true,
+                qrCode: qrDataUrl,
+                otpauthUrl: otpauthUrl,
+                secret: secret
+            });
+        } catch (error) {
+            console.error('TOTP setup error:', error);
+            jsonResponse(res, 500, { success: false, error: 'Failed to generate authenticator setup' });
+        }
+        return;
+    }
+
+    if (req.method === 'POST' && urlPath === '/api/2fa/totp-verify') {
+        try {
+            const sessionData = getSessionUser(req);
+            if (!sessionData) {
+                return jsonResponse(res, 401, { success: false, error: 'Not authenticated' });
+            }
+            const { code } = await parseBody(req);
+            if (!code || code.length !== 6) {
+                return jsonResponse(res, 400, { success: false, error: 'Please enter a valid 6-digit code' });
+            }
+
+            const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [sessionData.userId]);
+            const user = userResult.rows[0];
+            if (!user || !user.totp_secret) {
+                return jsonResponse(res, 400, { success: false, error: 'TOTP not set up. Please start setup again.' });
+            }
+
+            const totp = new OTPAuth.TOTP({
+                issuer: 'Willow Wealth',
+                label: user.email,
+                algorithm: 'SHA1',
+                digits: 6,
+                period: 30,
+                secret: OTPAuth.Secret.fromBase32(user.totp_secret)
+            });
+
+            const delta = totp.validate({ token: code, window: 1 });
+            if (delta === null) {
+                return jsonResponse(res, 400, { success: false, error: 'Invalid code. Please try again.' });
+            }
+
+            await pool.query(
+                'UPDATE users SET two_factor_enabled = TRUE, two_factor_method = $1, updated_at = NOW() WHERE id = $2',
+                ['authenticator', user.id]
+            );
+            const updatedUser = (await pool.query('SELECT * FROM users WHERE id = $1', [user.id])).rows[0];
+            const dest = getOnboardingRedirect(updatedUser);
+            jsonResponse(res, 200, { success: true, redirect: dest });
+        } catch (error) {
+            console.error('TOTP verify error:', error);
+            jsonResponse(res, 500, { success: false, error: 'Verification failed' });
+        }
+        return;
+    }
+
+    if (req.method === 'POST' && urlPath === '/api/2fa/sms-send') {
+        try {
+            const sessionData = getSessionUser(req);
+            if (!sessionData) {
+                return jsonResponse(res, 401, { success: false, error: 'Not authenticated' });
+            }
+            const { phone } = await parseBody(req);
+            if (!phone || phone.replace(/\D/g, '').length < 10) {
+                return jsonResponse(res, 400, { success: false, error: 'Please enter a valid phone number' });
+            }
+
+            const existing = smsVerificationCodes[sessionData.userId];
+            if (existing && Date.now() - existing.createdAt < 60000) {
+                return jsonResponse(res, 429, { success: false, error: 'Please wait before requesting another code' });
+            }
+
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            smsVerificationCodes[sessionData.userId] = {
+                code,
+                phone,
+                createdAt: Date.now(),
+                attempts: 0
+            };
+
+            let smsSent = false;
+            try {
+                const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+                const twilioAuth = process.env.TWILIO_AUTH_TOKEN;
+                const twilioFrom = process.env.TWILIO_PHONE_NUMBER;
+                if (twilioSid && twilioAuth && twilioFrom) {
+                    const authString = Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
+                    const msgBody = `Your WillowWealth verification code is: ${code}`;
+                    const formData = `To=${encodeURIComponent(phone)}&From=${encodeURIComponent(twilioFrom)}&Body=${encodeURIComponent(msgBody)}`;
+                    const twilioRes = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Basic ${authString}`,
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: formData
+                    });
+                    if (twilioRes.ok) {
+                        smsSent = true;
+                    } else {
+                        const errData = await twilioRes.json();
+                        console.error('Twilio error:', errData);
+                    }
+                }
+            } catch (smsErr) {
+                console.error('SMS send error:', smsErr);
+            }
+
+            if (!smsSent) {
+                try {
+                    const user = (await pool.query('SELECT email FROM users WHERE id = $1', [sessionData.userId])).rows[0];
+                    if (user) {
+                        await transporter.sendMail({
+                            from: process.env.EMAIL_USER,
+                            to: user.email,
+                            subject: 'Your WillowWealth verification code',
+                            html: `
+                                <div style="font-family: 'Inter', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
+                                    <h1 style="font-size: 24px; color: #1a2b23;">Your verification code</h1>
+                                    <p style="font-size: 14px; color: #4b5563;">Your WillowWealth verification code is:</p>
+                                    <div style="font-size: 32px; font-weight: bold; color: #002e30; padding: 16px 0; letter-spacing: 8px;">${code}</div>
+                                    <p style="font-size: 12px; color: #9ca3af;">This code expires in 10 minutes. If you did not request this code, please ignore this message.</p>
+                                </div>
+                            `
+                        });
+                    }
+                } catch (emailErr) {
+                    console.error('Fallback email error:', emailErr);
+                }
+            }
+
+            jsonResponse(res, 200, { success: true, smsSent });
+        } catch (error) {
+            console.error('SMS send error:', error);
+            jsonResponse(res, 500, { success: false, error: 'Failed to send verification code' });
+        }
+        return;
+    }
+
+    if (req.method === 'POST' && urlPath === '/api/2fa/sms-verify') {
+        try {
+            const sessionData = getSessionUser(req);
+            if (!sessionData) {
+                return jsonResponse(res, 401, { success: false, error: 'Not authenticated' });
+            }
+            const { code } = await parseBody(req);
+            if (!code || code.length !== 6) {
+                return jsonResponse(res, 400, { success: false, error: 'Please enter a valid 6-digit code' });
+            }
+
+            const stored = smsVerificationCodes[sessionData.userId];
+            if (!stored) {
+                return jsonResponse(res, 400, { success: false, error: 'No verification code found. Please request a new one.' });
+            }
+
+            if (Date.now() - stored.createdAt > 10 * 60 * 1000) {
+                delete smsVerificationCodes[sessionData.userId];
+                return jsonResponse(res, 400, { success: false, error: 'Code expired. Please request a new one.' });
+            }
+
+            stored.attempts++;
+            if (stored.attempts > 5) {
+                delete smsVerificationCodes[sessionData.userId];
+                return jsonResponse(res, 429, { success: false, error: 'Too many attempts. Please request a new code.' });
+            }
+
+            if (stored.code !== code) {
+                return jsonResponse(res, 400, { success: false, error: 'Invalid code. Please try again.' });
+            }
+
+            delete smsVerificationCodes[sessionData.userId];
+            await pool.query(
+                'UPDATE users SET two_factor_enabled = TRUE, two_factor_method = $1, updated_at = NOW() WHERE id = $2',
+                ['sms', sessionData.userId]
+            );
+            const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sessionData.userId])).rows[0];
+            const dest = getOnboardingRedirect(user);
+            jsonResponse(res, 200, { success: true, redirect: dest });
+        } catch (error) {
+            console.error('SMS verify error:', error);
+            jsonResponse(res, 500, { success: false, error: 'Verification failed' });
         }
         return;
     }
