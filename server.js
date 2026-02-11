@@ -29,6 +29,200 @@ const twoFactorCodes = {};
 const emailVerificationTokens = {};
 const smsVerificationCodes = {};
 
+// ========== SECURITY: Rate Limiting & IP Tracking ==========
+const rateLimitStore = {};
+const ipBanList = {};
+const suspiciousActivity = {};
+const RATE_LIMIT_WINDOW = 60000;
+const RATE_LIMIT_MAX_REQUESTS = 120;
+const API_RATE_LIMIT_MAX = 30;
+const AUTH_RATE_LIMIT_MAX = 10;
+const BAN_DURATION = 15 * 60 * 1000;
+const SUSPICIOUS_THRESHOLD = 5;
+
+function getClientIP(req) {
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+           req.headers['x-real-ip'] ||
+           req.socket?.remoteAddress || 'unknown';
+}
+
+function isIPBanned(ip) {
+    const ban = ipBanList[ip];
+    if (!ban) return false;
+    if (Date.now() - ban.timestamp > BAN_DURATION) {
+        delete ipBanList[ip];
+        return false;
+    }
+    return true;
+}
+
+function banIP(ip, reason) {
+    ipBanList[ip] = { timestamp: Date.now(), reason };
+    console.warn(`[SECURITY] IP banned: ${ip} - Reason: ${reason}`);
+}
+
+function trackSuspicious(ip, reason) {
+    if (!suspiciousActivity[ip]) {
+        suspiciousActivity[ip] = { count: 0, reasons: [], firstSeen: Date.now() };
+    }
+    suspiciousActivity[ip].count++;
+    suspiciousActivity[ip].reasons.push(reason);
+    suspiciousActivity[ip].lastSeen = Date.now();
+
+    if (suspiciousActivity[ip].count >= SUSPICIOUS_THRESHOLD) {
+        banIP(ip, `Exceeded suspicious threshold: ${suspiciousActivity[ip].reasons.slice(-3).join(', ')}`);
+        delete suspiciousActivity[ip];
+    }
+}
+
+function checkRateLimit(ip, category) {
+    const key = `${ip}:${category}`;
+    const now = Date.now();
+    if (!rateLimitStore[key]) {
+        rateLimitStore[key] = { count: 0, resetAt: now + RATE_LIMIT_WINDOW };
+    }
+    if (now > rateLimitStore[key].resetAt) {
+        rateLimitStore[key] = { count: 0, resetAt: now + RATE_LIMIT_WINDOW };
+    }
+    rateLimitStore[key].count++;
+
+    let limit = RATE_LIMIT_MAX_REQUESTS;
+    if (category === 'api') limit = API_RATE_LIMIT_MAX;
+    if (category === 'auth') limit = AUTH_RATE_LIMIT_MAX;
+
+    return rateLimitStore[key].count <= limit;
+}
+
+setInterval(() => {
+    const now = Date.now();
+    for (const key of Object.keys(rateLimitStore)) {
+        if (now > rateLimitStore[key].resetAt) delete rateLimitStore[key];
+    }
+    for (const ip of Object.keys(suspiciousActivity)) {
+        if (now - suspiciousActivity[ip].lastSeen > 300000) delete suspiciousActivity[ip];
+    }
+    for (const ip of Object.keys(ipBanList)) {
+        if (now - ipBanList[ip].timestamp > BAN_DURATION) delete ipBanList[ip];
+    }
+}, 60000);
+
+// ========== SECURITY: Bot Detection ==========
+const BLOCKED_UA_PATTERNS = [
+    /python-requests/i, /python-urllib/i, /scrapy/i, /httpie/i,
+    /wget/i, /curl/i, /java\//i, /apache-httpclient/i,
+    /go-http-client/i, /node-fetch/i, /axios/i,
+    /phantomjs/i, /headlesschrome/i,
+    /bot(?!.*(?:google|bing|yahoo|duckduck|slack|discord|telegram|whatsapp|facebook|twitter|linkedin))/i,
+    /spider/i, /crawl(?!.*(?:google|bing|yahoo|duckduck))/i,
+    /scraper/i, /mechanize/i, /libwww/i,
+    /HTTrack/i, /WebCopier/i, /SiteSucker/i,
+    /fetch\//i, /aiohttp/i, /httpx/i
+];
+
+const ALLOWED_BOTS = [
+    /googlebot/i, /bingbot/i, /slurp/i, /duckduckbot/i,
+    /facebookexternalhit/i, /twitterbot/i, /linkedinbot/i,
+    /slackbot/i, /discordbot/i, /telegrambot/i, /whatsapp/i
+];
+
+function isBot(req) {
+    const ua = req.headers['user-agent'] || '';
+    if (!ua) return false;
+    if (ua.length < 10) return false;
+    for (const allowed of ALLOWED_BOTS) {
+        if (allowed.test(ua)) return false;
+    }
+    for (const pattern of BLOCKED_UA_PATTERNS) {
+        if (pattern.test(ua)) return true;
+    }
+    return false;
+}
+
+function detectAutomation(req) {
+    const ua = req.headers['user-agent'] || '';
+    const indicators = [];
+    if (!req.headers['accept-language']) indicators.push('no-accept-language');
+    if (!req.headers['accept-encoding']) indicators.push('no-accept-encoding');
+    if (ua.includes('HeadlessChrome') || ua.includes('Headless')) indicators.push('headless-browser');
+    if (req.headers['sec-ch-ua'] && req.headers['sec-ch-ua'].includes('"HeadlessChrome"')) indicators.push('headless-hint');
+    return indicators;
+}
+
+// ========== SECURITY: CSRF Token Generation ==========
+const csrfTokens = {};
+
+function generateCSRFToken(sessionId) {
+    const token = crypto.randomBytes(32).toString('hex');
+    csrfTokens[token] = { sessionId, created: Date.now() };
+    setTimeout(() => { delete csrfTokens[token]; }, 3600000);
+    return token;
+}
+
+function validateCSRFToken(token, sessionId) {
+    const entry = csrfTokens[token];
+    if (!entry) return false;
+    if (Date.now() - entry.created > 3600000) {
+        delete csrfTokens[token];
+        return false;
+    }
+    return entry.sessionId === sessionId;
+}
+
+// ========== SECURITY: Path Sanitization ==========
+function sanitizePath(urlPath) {
+    const decoded = decodeURIComponent(urlPath);
+    if (decoded.includes('..') || decoded.includes('\0') || decoded.includes('//')) {
+        return null;
+    }
+    const normalized = path.normalize(decoded).replace(/\\/g, '/');
+    if (normalized.startsWith('/') && !normalized.includes('..')) {
+        return normalized;
+    }
+    return null;
+}
+
+// ========== SECURITY: Request Body Size Limit ==========
+const MAX_BODY_SIZE = 1024 * 100; // 100KB
+
+// ========== SECURITY: Headers ==========
+function setSecurityHeaders(res, req) {
+    const origin = req?.headers?.origin || '';
+    const allowedOrigins = [BASE_URL];
+    if (process.env.REPLIT_DEV_DOMAIN) {
+        allowedOrigins.push(`https://${process.env.REPLIT_DEV_DOMAIN}`);
+    }
+    if (process.env.REPLIT_DOMAINS) {
+        process.env.REPLIT_DOMAINS.split(',').forEach(d => allowedOrigins.push(`https://${d.trim()}`));
+    }
+
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-Token');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+
+    const cspDirectives = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://widget.intercom.io https://js.intercomcdn.com https://www.google.com https://www.gstatic.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+        "img-src 'self' data: https: blob:",
+        "connect-src 'self' https://accounts.google.com https://api-iam.intercom.io https://api-iam.eu.intercom.io https://*.intercom.io https://www.google.com wss://*.intercom.io",
+        "frame-src 'self' https://accounts.google.com https://www.google.com https://intercom-sheets.com",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self' https://accounts.google.com https://appleid.apple.com"
+    ];
+    res.setHeader('Content-Security-Policy', cspDirectives.join('; '));
+}
+
 const ONBOARDING_STEPS = [
     { key: 'terms_accepted', page: '/signup/terms-review' },
     { key: 'accreditation_completed', page: '/signup/accreditation' },
@@ -869,8 +1063,87 @@ const PROTECTED_PAGES = ['/dashboard.html', '/legal-name.html', '/mobile-phone.h
 const ONBOARDING_PAGES = ['/legal-name.html', '/mobile-phone.html', '/signup/terms-review', '/signup/accreditation', '/signup/terms-review.html', '/signup/accreditation.html'];
 const TWOFA_PAGES = ['/login/twofa', '/login/twofa.html'];
 
+function parseBodyLimited(req) {
+    return new Promise((resolve, reject) => {
+        let body = '';
+        let size = 0;
+        req.on('data', chunk => {
+            size += chunk.length;
+            if (size > MAX_BODY_SIZE) {
+                req.destroy();
+                reject(new Error('Request body too large'));
+                return;
+            }
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            try {
+                const ct = req.headers['content-type'] || '';
+                if (ct.includes('application/x-www-form-urlencoded')) {
+                    const params = {};
+                    body.split('&').forEach(pair => {
+                        const [k, ...v] = pair.split('=');
+                        if (k) params[decodeURIComponent(k)] = decodeURIComponent(v.join('='));
+                    });
+                    resolve(params);
+                } else {
+                    resolve(JSON.parse(body));
+                }
+            } catch (e) {
+                resolve({});
+            }
+        });
+        req.on('error', reject);
+    });
+}
+
 const server = http.createServer(async (req, res) => {
-    const urlPath = req.url.split('?')[0];
+    const clientIP = getClientIP(req);
+
+    const isLocalIP = clientIP === '127.0.0.1' || clientIP === '::1' || clientIP === '::ffff:127.0.0.1';
+    if (!isLocalIP && isIPBanned(clientIP)) {
+        res.writeHead(403, { 'Content-Type': 'text/plain' });
+        res.end('Access denied');
+        return;
+    }
+
+    setSecurityHeaders(res, req);
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
+    const rawPath = req.url.split('?')[0];
+    const urlPath = sanitizePath(rawPath);
+    if (!urlPath) {
+        trackSuspicious(clientIP, 'path-traversal-attempt');
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.end('Bad request');
+        return;
+    }
+
+    const rateCategory = urlPath.startsWith('/auth/') ? 'auth'
+        : urlPath.startsWith('/api/') ? 'api' : 'general';
+    if (!isLocalIP && !checkRateLimit(clientIP, rateCategory)) {
+        trackSuspicious(clientIP, `rate-limit-${rateCategory}`);
+        res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
+        res.end(JSON.stringify({ error: 'Too many requests. Please try again later.' }));
+        return;
+    }
+
+    if (!isLocalIP && isBot(req)) {
+        trackSuspicious(clientIP, 'bot-detected');
+        res.writeHead(403, { 'Content-Type': 'text/plain' });
+        res.end('Access denied');
+        return;
+    }
+
+    const automationHints = isLocalIP ? [] : detectAutomation(req);
+    if (automationHints.length >= 3) {
+        trackSuspicious(clientIP, `automation: ${automationHints.join(',')}`);
+    }
 
     if (req.method === 'GET' && urlPath === '/auth/error') {
         const filePath = path.join(__dirname, 'auth-error.html');
@@ -1307,6 +1580,25 @@ const server = http.createServer(async (req, res) => {
         }
     }
 
+    const BLOCKED_FILES = [
+        '/server.js', '/package.json', '/package-lock.json', '/.env',
+        '/.gitignore', '/.git', '/node_modules', '/replit.md',
+        '/.replit', '/replit.nix', '/.config'
+    ];
+    const blockedMatch = BLOCKED_FILES.some(f => urlPath === f || urlPath.startsWith(f + '/'));
+    if (blockedMatch) {
+        trackSuspicious(clientIP, `blocked-file-access: ${urlPath}`);
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not found');
+        return;
+    }
+
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+        res.writeHead(405, { 'Content-Type': 'text/plain' });
+        res.end('Method not allowed');
+        return;
+    }
+
     const cleanRoutes = {
         '/signup/terms-review': '/signup/terms-review.html',
         '/signup/accreditation': '/signup/accreditation.html',
@@ -1315,24 +1607,41 @@ const server = http.createServer(async (req, res) => {
     let filePath = urlPath === '/' ? '/index.html' : (cleanRoutes[urlPath] || urlPath);
     filePath = path.join(__dirname, filePath);
 
+    const resolved = path.resolve(filePath);
+    if (!resolved.startsWith(path.resolve(__dirname))) {
+        trackSuspicious(clientIP, 'directory-traversal');
+        res.writeHead(403, { 'Content-Type': 'text/plain' });
+        res.end('Access denied');
+        return;
+    }
+
     const ext = path.extname(filePath);
     const contentType = mimeTypes[ext] || 'application/octet-stream';
 
-    fs.readFile(filePath, (err, content) => {
-        if (err) {
-            if (err.code === 'ENOENT') {
-                fs.readFile(path.join(__dirname, 'index.html'), (err, content) => {
-                    res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-cache' });
-                    res.end(content);
-                });
-            } else {
-                res.writeHead(500);
-                res.end('Server Error');
-            }
-        } else {
-            res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': 'no-cache' });
-            res.end(content);
+    fs.stat(filePath, (statErr, stats) => {
+        if (!statErr && stats.isDirectory()) {
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Access denied');
+            return;
         }
+
+        fs.readFile(filePath, (err, content) => {
+            if (err) {
+                if (err.code === 'ENOENT') {
+                    fs.readFile(path.join(__dirname, 'index.html'), (err, content) => {
+                        res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-cache' });
+                        res.end(content);
+                    });
+                } else {
+                    res.writeHead(500);
+                    res.end('Server Error');
+                }
+            } else {
+                const cacheHeader = (ext === '.html' || ext === '.json') ? 'no-cache' : 'public, max-age=3600';
+                res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': cacheHeader });
+                res.end(content);
+            }
+        });
     });
 });
 
