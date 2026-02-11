@@ -1105,12 +1105,12 @@ img {
     flex-direction: column;
     min-height: 100vh;
     padding: 40px 20px;
-    background-color: white;
+    background-color: #faf9f7;
 }
 
 .email-signup-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 40px;
 }
 
 .email-signup-content {
@@ -1120,28 +1120,85 @@ img {
 }
 
 .email-signup-content h1 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     color: #111827;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     text-align: center;
+    font-weight: 700;
 }
 
 .email-signup-subtitle {
     color: #6b7280;
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 32px;
+    font-size: 14px;
 }
 
 .email-signup-form .input-group {
-    margin-bottom: 16px;
+    position: relative;
+    margin-bottom: 0;
+    border-bottom: 1px solid #d1d5db;
+    transition: border-color 0.2s;
 }
 
-.email-signup-form input {
+.email-signup-form .input-group:hover {
+    border-bottom-color: #9ca3af;
+}
+
+.email-signup-form .input-group.focused {
+    border-bottom-color: #0F766E;
+}
+
+.email-signup-form .input-group.error {
+    border-bottom-color: #DC2626;
+}
+
+.email-signup-form .input-group label {
+    position: absolute;
+    left: 0;
+    top: 18px;
+    font-size: 15px;
+    color: #9ca3af;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+.email-signup-form .input-group.focused label,
+.email-signup-form .input-group.has-value label {
+    top: 4px;
+    font-size: 11px;
+    color: #0F766E;
+}
+
+.email-signup-form .input-group.error label {
+    color: #DC2626;
+}
+
+.email-signup-form .input-group input {
     width: 100%;
-    padding: 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    font-size: 1rem;
+    padding: 20px 0 8px;
+    border: none;
+    border-radius: 0;
+    font-size: 15px;
+    color: #111827;
+    background: transparent;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.email-signup-form .input-group input::placeholder {
+    color: transparent;
+}
+
+.email-signup-form .input-group .field-error {
+    font-size: 12px;
+    color: #DC2626;
+    padding: 4px 0 0;
+    display: none;
+}
+
+.email-signup-form .input-group.error .field-error {
+    display: block;
 }
 
 .password-wrapper {
@@ -1150,29 +1207,35 @@ img {
 
 .password-wrapper .toggle-password {
     position: absolute;
-    right: 14px;
+    right: 0;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
     color: #9ca3af;
     cursor: pointer;
+    padding: 8px;
+    z-index: 2;
 }
 
 .legal-consent {
-    margin-top: 24px;
-    margin-bottom: 32px;
+    margin-top: 28px;
+    margin-bottom: 28px;
 }
 
 .checkbox-wrapper {
     display: flex;
     gap: 12px;
+    align-items: flex-start;
 }
 
 .checkbox-wrapper input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    margin-top: 4px;
+    min-width: 18px;
+    margin-top: 2px;
+    accent-color: #0F766E;
+    cursor: pointer;
 }
 
 .checkbox-wrapper label {
@@ -1190,30 +1253,36 @@ img {
 .btn-continue-email {
     width: 100%;
     padding: 14px;
-    background-color: #93f5b0;
+    background-color: #a2f2b7;
     color: #002e30;
     border: none;
     border-radius: 9999px;
     font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, background-color 0.2s;
 }
 
 .btn-continue-email:hover {
-    opacity: 0.9;
+    background-color: #8ae0a2;
+}
+
+.btn-continue-email:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .secure-badge {
     text-align: center;
-    margin-top: 40px;
+    margin-top: 32px;
     color: #9ca3af;
 }
 
 .secure-badge p {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     margin-top: 4px;
+    letter-spacing: 0.5px;
 }
 
 .email-signup-footer {
