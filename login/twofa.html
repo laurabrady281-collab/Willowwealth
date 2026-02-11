@@ -258,24 +258,64 @@
         .verify-input-group input:focus {
             border-color: #002e30;
         }
-        .verify-input-underline input {
+        .floating-input-group {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            border-bottom: 1px solid #d1d5db;
+            transition: border-color 0.2s;
+            background: #ffffff;
+            padding-left: 16px;
+            padding-right: 16px;
+            margin-top: 24px;
+        }
+        .floating-input-group:hover {
+            border-bottom-color: #9ca3af;
+        }
+        .floating-input-group.focused {
+            border-bottom-color: #134E4A;
+        }
+        .floating-input-group.error {
+            border-bottom-color: #DC2626;
+        }
+        .floating-input-group.valid {
+            border-bottom-color: #134E4A;
+        }
+        .floating-input-group label {
+            position: absolute;
+            left: 16px;
+            top: 18px;
+            font-size: 15px;
+            color: #9ca3af;
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+        .floating-input-group.focused label,
+        .floating-input-group.has-value label {
+            top: 4px;
+            font-size: 11px;
+            color: #134E4A;
+        }
+        .floating-input-group.error label {
+            color: #DC2626;
+        }
+        .floating-input-group input {
+            width: 100%;
+            padding: 20px 0 8px;
             border: none;
-            border-bottom: 2px solid #002e30;
             border-radius: 0;
+            font-size: 15px;
+            color: #111827;
+            background: transparent;
+            outline: none;
+            font-family: 'Inter', sans-serif;
             letter-spacing: 0;
             text-align: left;
-            font-size: 15px;
-            padding: 0 0 8px;
             height: auto;
-            padding-bottom: 10px;
+            box-sizing: border-box;
         }
-        .verify-input-underline input::placeholder {
-            color: #9ca3af;
-            letter-spacing: 0;
-            font-size: 15px;
-        }
-        .verify-input-underline input:focus {
-            border-color: #002e30;
+        .floating-input-group input::placeholder {
+            color: transparent;
         }
         .error-msg {
             color: #dc2626;
@@ -531,8 +571,9 @@
         </div>
         <h1 class="twofa-title">Confirm your verification code</h1>
         <p class="twofa-subtitle">Please enter the verification code we sent to .<br>It may take a few minutes to receive the code</p>
-        <div class="verify-input-group verify-input-underline">
-            <input type="text" id="totp-code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="Enter 6-digit code" autocomplete="one-time-code">
+        <div class="floating-input-group" id="totp-input-group">
+            <label for="totp-code-input">Enter 6-digit code</label>
+            <input type="text" id="totp-code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
         </div>
         <div class="error-msg" id="totp-error"></div>
         <button class="btn-continue" id="totp-verify-btn" disabled>Confirm verification code</button>
@@ -685,16 +726,42 @@
 
         document.getElementById('totp-continue-btn').addEventListener('click', function() {
             showScreen('screen-authenticator-verify');
+            var grp = document.getElementById('totp-input-group');
+            grp.classList.remove('focused', 'has-value', 'error', 'valid');
             document.getElementById('totp-code-input').value = '';
             document.getElementById('totp-error').textContent = '';
-            document.getElementById('totp-code-input').focus();
         });
 
         var totpInput = document.getElementById('totp-code-input');
         var totpVerifyBtn = document.getElementById('totp-verify-btn');
+        var totpGroup = document.getElementById('totp-input-group');
+
+        totpInput.addEventListener('focus', function() {
+            totpGroup.classList.add('focused');
+            totpGroup.classList.remove('error');
+        });
+        totpInput.addEventListener('blur', function() {
+            totpGroup.classList.remove('focused');
+            if (this.value.length > 0) {
+                totpGroup.classList.add('has-value');
+            } else {
+                totpGroup.classList.remove('has-value');
+            }
+        });
         totpInput.addEventListener('input', function() {
             this.value = this.value.replace(/\D/g, '').slice(0, 6);
             totpVerifyBtn.disabled = this.value.length !== 6;
+            totpGroup.classList.remove('error');
+            if (this.value.length > 0) {
+                totpGroup.classList.add('has-value');
+            } else {
+                totpGroup.classList.remove('has-value');
+            }
+            if (this.value.length === 6) {
+                totpGroup.classList.add('valid');
+            } else {
+                totpGroup.classList.remove('valid');
+            }
         });
 
         totpVerifyBtn.addEventListener('click', async function() {
@@ -714,13 +781,17 @@
                     window.location.href = data.redirect || '/dashboard.html';
                 } else {
                     errorEl.textContent = data.error || 'Invalid code. Please try again.';
+                    totpGroup.classList.add('error');
+                    totpGroup.classList.remove('valid');
                     totpVerifyBtn.disabled = false;
-                    totpVerifyBtn.textContent = 'Verify';
+                    totpVerifyBtn.textContent = 'Confirm verification code';
                 }
             } catch (err) {
                 errorEl.textContent = 'Something went wrong. Please try again.';
+                totpGroup.classList.add('error');
+                totpGroup.classList.remove('valid');
                 totpVerifyBtn.disabled = false;
-                totpVerifyBtn.textContent = 'Verify';
+                totpVerifyBtn.textContent = 'Confirm verification code';
             }
         });
 
