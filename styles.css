@@ -1351,7 +1351,7 @@ img {
     background: #002b28;
     text-align: center;
     margin-top: 40px;
-    border-radius: 40px;
+    border-radius: 40px 40px 0 0;
 }
 
 .cta-section .container {
@@ -1806,7 +1806,7 @@ img {
 
     .cta-section {
         padding: 60px 20px;
-        border-radius: 24px;
+        border-radius: 24px 24px 0 0;
     }
 
     .cta-section h2 {
@@ -1953,7 +1953,7 @@ img {
 
     .cta-section {
         padding: 80px 0;
-        border-radius: 32px;
+        border-radius: 32px 32px 0 0;
     }
 
     .footer-top-grid {
