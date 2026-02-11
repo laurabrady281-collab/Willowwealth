@@ -258,6 +258,25 @@
         .verify-input-group input:focus {
             border-color: #002e30;
         }
+        .verify-input-underline input {
+            border: none;
+            border-bottom: 2px solid #002e30;
+            border-radius: 0;
+            letter-spacing: 0;
+            text-align: left;
+            font-size: 15px;
+            padding: 0 0 8px;
+            height: auto;
+            padding-bottom: 10px;
+        }
+        .verify-input-underline input::placeholder {
+            color: #9ca3af;
+            letter-spacing: 0;
+            font-size: 15px;
+        }
+        .verify-input-underline input:focus {
+            border-color: #002e30;
+        }
         .error-msg {
             color: #dc2626;
             font-size: 14px;
@@ -507,17 +526,16 @@
 
     <!-- SCREEN 3: Authenticator Verify -->
     <div class="twofa-container screen" id="screen-authenticator-verify">
-        <a class="back-arrow" id="back-to-authenticator">&lsaquo;</a>
         <div class="twofa-logo">
             <a href="/"><img src="/images/auth/logo.svg" alt="WillowWealth"></a>
         </div>
-        <h1 class="twofa-title">Enter verification code</h1>
-        <p class="twofa-subtitle">Enter the 6-digit code from your authenticator app.</p>
-        <div class="verify-input-group">
-            <input type="text" id="totp-code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="000000" autocomplete="one-time-code">
+        <h1 class="twofa-title">Confirm your verification code</h1>
+        <p class="twofa-subtitle">Please enter the verification code we sent to .<br>It may take a few minutes to receive the code</p>
+        <div class="verify-input-group verify-input-underline">
+            <input type="text" id="totp-code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="Enter 6-digit code" autocomplete="one-time-code">
         </div>
         <div class="error-msg" id="totp-error"></div>
-        <button class="btn-continue" id="totp-verify-btn" disabled>Verify</button>
+        <button class="btn-continue" id="totp-verify-btn" disabled>Confirm verification code</button>
         <div class="twofa-support">
             <a href="javascript:void(0)" onclick="if(window.Intercom){Intercom('show')}">Contact support</a>
         </div>
@@ -670,10 +688,6 @@
             document.getElementById('totp-code-input').value = '';
             document.getElementById('totp-error').textContent = '';
             document.getElementById('totp-code-input').focus();
-        });
-
-        document.getElementById('back-to-authenticator').addEventListener('click', function() {
-            showScreen('screen-authenticator');
         });
 
         var totpInput = document.getElementById('totp-code-input');
