@@ -1139,6 +1139,9 @@ img {
     margin-bottom: 0;
     border-bottom: 1px solid #d1d5db;
     transition: border-color 0.2s;
+    background: #ffffff;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 .email-signup-form .input-group:hover {
@@ -1155,7 +1158,7 @@ img {
 
 .email-signup-form .input-group label {
     position: absolute;
-    left: 0;
+    left: 16px;
     top: 18px;
     font-size: 15px;
     color: #9ca3af;
