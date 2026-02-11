@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <title>Verify your identity | WillowWealth</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .verify-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px 0;
+        }
+
+        .verify-logo {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 40px;
+            letter-spacing: -0.5px;
+        }
+
+        .verify-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        .verify-description {
+            font-size: 14px;
+            color: #4b5563;
+            text-align: center;
+            max-width: 420px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .verify-description strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .verify-form {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .verify-input {
+            width: 100%;
+            padding: 16px 16px;
+            border: none;
+            border-bottom: 1px solid #d1d5db;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            color: #1a1a1a;
+            outline: none;
+            background: transparent;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .verify-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .verify-input:focus {
+            border-bottom-color: #134E4A;
+        }
+
+        .verify-input.error {
+            border-bottom-color: #DC2626;
+        }
+
+        .verify-error {
+            font-size: 12px;
+            color: #DC2626;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .verify-error.visible {
+            display: block;
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 16px;
+            background: #a2f2b7;
+            color: #013536;
+            border: none;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            margin-top: 24px;
+            transition: opacity 0.2s;
+        }
+
+        .verify-btn:hover {
+            opacity: 0.9;
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .contact-support {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .contact-support a {
+            color: #1a1a1a;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .recaptcha-notice {
+            font-size: 11px;
+            color: #9ca3af;
+            text-align: center;
+            margin-top: 24px;
+            line-height: 1.6;
+        }
+
+        .recaptcha-notice a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .recaptcha-notice a:hover {
+            text-decoration: underline;
+        }
+
+        .verify-footer {
+            padding: 24px 20px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 480px) {
+            .verify-logo {
+                font-size: 26px;
+            }
+            .verify-title {
+                font-size: 18px;
+            }
+            .verify-container {
+                padding: 30px 20px 0;
+            }
+        }
+    </style>
+<style>*{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none}img{pointer-events:none;-webkit-user-drag:none;-khtml-user-drag:none;-moz-user-drag:none;-o-user-drag:none;user-drag:none}input,textarea,select,[contenteditable]{-webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text}</style>
+<script src="/js/protect.js" defer></script>
+</head>
+<body>
+    <div id="page-loader" class="page-loader active">
+        <div class="loader-content">
+            <svg class="loader-w" viewBox="0 0 100 100">
+                <path d="M20 30 L40 70 L50 50 L60 70 L80 30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+    </div>
+
+    <div class="verify-container">
+        <div class="verify-logo">WillowWealth</div>
+        <h1 class="verify-title">Verify your identity</h1>
+        <p class="verify-description" id="verify-description">
+            We emailed a one time code to <strong id="masked-email"></strong>.
+            Please enter that code below so we can set up your two-factor authentication.
+        </p>
+
+        <form class="verify-form" id="verify-form">
+            <input type="text" class="verify-input" id="code-input" placeholder="Enter code" autocomplete="one-time-code" inputmode="numeric" maxlength="6">
+            <div class="verify-error" id="verify-error">Invalid code. Please try again.</div>
+            <button type="submit" class="verify-btn" id="verify-btn">Verify your identity</button>
+        </form>
+
+        <div class="contact-support">
+            <a href="javascript:void(0)" id="contact-support-link">Contact support</a>
+        </div>
+
+        <div class="recaptcha-notice">
+            This site is protected by reCAPTCHA and the<br>
+            Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply.
+        </div>
+    </div>
+
+    <div class="verify-footer">
+        Copyright &copy; 2026 Willow Wealth Inc.
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            var loader = document.getElementById('page-loader');
+            if (loader) {
+                loader.classList.remove('active');
+                setTimeout(function() { loader.style.display = 'none'; }, 300);
+            }
+        });
+
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var token = params.get('token');
+            var maskedEmail = params.get('email');
+
+            if (maskedEmail) {
+                document.getElementById('masked-email').textContent = maskedEmail;
+            }
+
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            var form = document.getElementById('verify-form');
+            var input = document.getElementById('code-input');
+            var errorEl = document.getElementById('verify-error');
+            var btn = document.getElementById('verify-btn');
+
+            input.addEventListener('input', function() {
+                input.classList.remove('error');
+                errorEl.classList.remove('visible');
+            });
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var code = input.value.trim();
+                if (!code) {
+                    input.classList.add('error');
+                    errorEl.textContent = 'Please enter the verification code.';
+                    errorEl.classList.add('visible');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = 'Verifying...';
+
+                fetch('/api/verify-2fa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token, code: code })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var loader = document.getElementById('page-loader');
+                        if (loader) {
+                            loader.style.display = 'flex';
+                            setTimeout(function() { loader.classList.add('active'); }, 10);
+                        }
+                        window.location.href = data.redirect || '/dashboard.html';
+                    } else {
+                        input.classList.add('error');
+                        errorEl.textContent = data.error || 'Invalid code. Please try again.';
+                        errorEl.classList.add('visible');
+                        btn.disabled = false;
+                        btn.textContent = 'Verify your identity';
+                    }
+                })
+                .catch(function() {
+                    input.classList.add('error');
+                    errorEl.textContent = 'Something went wrong. Please try again.';
+                    errorEl.classList.add('visible');
+                    btn.disabled = false;
+                    btn.textContent = 'Verify your identity';
+                });
+            });
+
+            var supportLink = document.getElementById('contact-support-link');
+            supportLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.Intercom) {
+                    window.Intercom('show');
+                }
+            });
+        })();
+    </script>
+
+    <script>
+        window.intercomSettings = {
+            api_base: "https://api-iam.intercom.io",
+            app_id: "ub97p16r",
+        };
+    </script>
+    <script>
+        (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic("reattach_activator");ic("update",w.intercomSettings)}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;var l=function(){var s=d.createElement("script");s.type="text/javascript";s.async=true;s.src="https://widget.intercom.io/widget/ub97p16r";var x=d.getElementsByTagName("script")[0];x.parentNode.insertBefore(s,x)};if(document.readyState==="complete"){l()}else if(w.attachEvent){w.attachEvent("onload",l)}else{w.addEventListener("load",l,false)}}})();
+    </script>
+</body>
+</html>

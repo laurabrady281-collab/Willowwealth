@@ -23,6 +23,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 const sessions = {};
 const oauthStates = {};
+const twoFactorCodes = {};
 
 const ONBOARDING_STEPS = [
     { key: 'terms_accepted', page: '/signup/terms-review' },
@@ -52,6 +53,47 @@ const transporter = nodemailer.createTransport({
 
 function generateToken() {
     return crypto.randomBytes(32).toString('hex');
+}
+
+function generate2FACode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function maskEmail(email) {
+    const [local, domain] = email.split('@');
+    if (local.length <= 2) return local[0] + '***@' + domain;
+    return local[0] + '*'.repeat(Math.min(local.length - 2, 14)) + local.slice(-1) + '@' + domain;
+}
+
+async function send2FACode(email, user) {
+    const code = generate2FACode();
+    const token = generateToken();
+    twoFactorCodes[token] = { code, email, userId: user.id, created: Date.now(), attempts: 0 };
+    setTimeout(() => { delete twoFactorCodes[token]; }, 600000);
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Your WillowWealth verification code',
+        html: `
+            <div style="font-family: 'Inter', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
+                <h1 style="font-size: 24px; color: #1a1a1a; margin-bottom: 16px;">Verify your identity</h1>
+                <p style="font-size: 14px; color: #4b5563; line-height: 1.6;">Your verification code is:</p>
+                <div style="font-size: 32px; font-weight: 700; color: #002e30; letter-spacing: 8px; margin: 24px 0; padding: 20px; background: #f3f4f6; border-radius: 12px; text-align: center;">${code}</div>
+                <p style="font-size: 14px; color: #4b5563; line-height: 1.6;">This code expires in 10 minutes. If you did not request this code, please ignore this email.</p>
+                <p style="font-size: 12px; color: #9ca3af; margin-top: 32px;">&copy; 2026 Willow Wealth Inc.</p>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('2FA code sent to:', maskEmail(email));
+    } catch (err) {
+        console.error('Failed to send 2FA email:', err.message);
+    }
+
+    return { token, maskedEmail: maskEmail(email) };
 }
 
 function parseBody(req) {
@@ -311,10 +353,10 @@ async function handleGoogleCallback(req, res) {
             );
             existing.name = userInfo.name || existing.name;
             existing.picture = userInfo.picture || existing.picture;
-            await createSessionForUser(res, existing);
-            const dest = getOnboardingRedirect(existing);
-            console.log('Redirecting existing user to:', dest);
-            redirect(res, dest);
+
+            const { token: twoFAToken, maskedEmail } = await send2FACode(userInfo.email, existing);
+            console.log('2FA required for Google login user:', maskEmail(userInfo.email));
+            redirect(res, `/verify-identity.html?token=${twoFAToken}&email=${encodeURIComponent(maskedEmail)}`);
         } else {
             const user = await findOrCreateUser({
                 email: userInfo.email,
@@ -610,6 +652,51 @@ async function handleEmailLogin(req, res) {
     }
 }
 
+async function handleVerify2FA(req, res) {
+    try {
+        const { token, code } = await parseBody(req);
+
+        if (!token || !code) {
+            return jsonResponse(res, 400, { success: false, error: 'Token and code are required' });
+        }
+
+        const twoFA = twoFactorCodes[token];
+        if (!twoFA) {
+            return jsonResponse(res, 400, { success: false, error: 'Verification code has expired. Please log in again.' });
+        }
+
+        if (Date.now() - twoFA.created > 600000) {
+            delete twoFactorCodes[token];
+            return jsonResponse(res, 400, { success: false, error: 'Verification code has expired. Please log in again.' });
+        }
+
+        twoFA.attempts++;
+        if (twoFA.attempts > 5) {
+            delete twoFactorCodes[token];
+            return jsonResponse(res, 400, { success: false, error: 'Too many attempts. Please log in again.' });
+        }
+
+        if (twoFA.code !== code.trim()) {
+            return jsonResponse(res, 400, { success: false, error: 'Invalid code. Please try again.' });
+        }
+
+        delete twoFactorCodes[token];
+
+        const user = (await pool.query('SELECT * FROM users WHERE id = $1', [twoFA.userId])).rows[0];
+        if (!user) {
+            return jsonResponse(res, 400, { success: false, error: 'User not found. Please log in again.' });
+        }
+
+        await createSessionForUser(res, user);
+        const dest = getOnboardingRedirect(user);
+        console.log('2FA verified for user:', maskEmail(twoFA.email), '- redirecting to:', dest);
+        jsonResponse(res, 200, { success: true, redirect: dest });
+    } catch (error) {
+        console.error('2FA verification error:', error);
+        jsonResponse(res, 500, { success: false, error: 'An error occurred during verification' });
+    }
+}
+
 async function handleAuthStatus(req, res) {
     const sessionData = getSessionUser(req);
 
@@ -802,6 +889,9 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === 'POST' && urlPath === '/api/login') {
         return handleEmailLogin(req, res);
+    }
+    if (req.method === 'POST' && urlPath === '/api/verify-2fa') {
+        return handleVerify2FA(req, res);
     }
     if (req.method === 'POST' && urlPath === '/api/onboarding/terms') {
         return handleTermsAcceptance(req, res);
