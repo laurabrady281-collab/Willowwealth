@@ -52,6 +52,12 @@
         .auth-logo img {
             height: 32px;
             width: auto;
+            max-width: 100%;
+        }
+        @media (max-width: 480px) {
+            .auth-logo img {
+                height: 26px;
+            }
         }
         .signup-subtitle {
             font-size: 14px;
@@ -272,7 +278,7 @@
     <!-- Email Signup Screen (hidden by default) -->
     <div class="email-signup-layout" id="email-signup-screen" style="display: none;">
         <header class="email-signup-header">
-            <img src="images/auth/logo.svg" alt="WillowWealth" style="height: 32px; width: auto;">
+            <a href="index.html" class="auth-logo" style="margin-bottom: 0;"><img src="images/auth/logo.svg" alt="WillowWealth"></a>
         </header>
         <main class="email-signup-content">
             <h1>Create your account</h1>

@@ -8,6 +8,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        .auth-logo-img {
+            height: 32px;
+            max-width: 100%;
+        }
+        @media (max-width: 480px) {
+            .auth-logo-img {
+                height: 26px;
+            }
+        }
         .remember-me input[type="checkbox"] {
             width: 18px;
             height: 18px;
@@ -60,7 +69,7 @@
     <div class="auth-container">
         <header class="auth-header">
             <a href="index.html" class="auth-logo">
-                <img src="images/auth/logo.svg" alt="WillowWealth" style="height: 32px; width: auto; margin-bottom: 40px;">
+                <img src="images/auth/logo.svg" alt="WillowWealth" style="width: auto; margin-bottom: 40px;" class="auth-logo-img">
             </a>
         </header>
         
