@@ -1,0 +1,132 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Linik Sans",
+      "role": "body"
+    }
+  ],
+  "colors": {
+    "primary": "#ABF7E4",
+    "accent": "#ABF7E4",
+    "background": "#F1F3F6",
+    "textPrimary": "#1A1B1D",
+    "link": "#0000EE"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Linik Sans",
+      "heading": "Linik Sans"
+    },
+    "fontStacks": {
+      "heading": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ],
+      "body": [
+        "Linik Sans",
+        "Verdana"
+      ],
+      "paragraph": [
+        "Linik Sans",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "42px",
+      "h2": "32px",
+      "body": "16px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "5px"
+  },
+  "components": {
+    "buttonPrimary": {
+      "background": "#ABF7E4",
+      "textColor": "#105C4E",
+      "borderColor": "#ABF7E4",
+      "borderRadius": "240px",
+      "borderRadiusCorners": {
+        "topLeft": "240px",
+        "topRight": "240px",
+        "bottomRight": "240px",
+        "bottomLeft": "240px"
+      },
+      "shadow": "none"
+    },
+    "buttonSecondary": {
+      "background": "transparent",
+      "textColor": "#1A1B1D",
+      "borderColor": "#1A1B1D",
+      "borderRadius": "240px",
+      "borderRadiusCorners": {
+        "topLeft": "240px",
+        "topRight": "240px",
+        "bottomRight": "240px",
+        "bottomLeft": "240px"
+      },
+      "shadow": "none"
+    }
+  },
+  "images": {
+    "favicon": "https://yieldstreetalternativeincomefund.com/favicon-32x32.png?v=7ee3793fb8af98134c2f5b4b2f545b65",
+    "ogImage": "https://www.willowwealth.com/static/willowwealth-og-69f11995ac709e8e0f61d5c335938e4c.png"
+  },
+  "__framework_hints": [
+    "Gatsby 4.18.2"
+  ],
+  "__llm_logo_reasoning": {
+    "selectedIndex": -1,
+    "reasoning": "No suitable logo candidate matches the brand 'Yieldstreet Alternative Income Fund'. The provided candidate is labeled 'Willow Wealth logo', which does not align with the brand inferred from the page title and URL.",
+    "confidence": 0.2,
+    "rejected": true,
+    "source": "llm"
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": 0,
+      "text": "Invest now",
+      "reasoning": "Button #0 with text 'Invest now' is the primary CTA due to its vibrant brand color (#ABF7E4) and action-oriented text, making it the most prominent call-to-action on the page."
+    },
+    "secondary": {
+      "index": 2,
+      "text": "Show more documents",
+      "reasoning": "Button #2 with text 'Show more documents' is selected as secondary because it has a transparent background, providing a clear contrast to the primary button's vibrant color."
+    },
+    "confidence": 0.95
+  },
+  "personality": {
+    "tone": "professional",
+    "energy": "medium",
+    "targetAudience": "investors seeking alternative income opportunities"
+  },
+  "designSystem": {
+    "framework": "custom",
+    "componentLibrary": ""
+  },
+  "confidence": {
+    "buttons": 0.95,
+    "colors": 0.9,
+    "overall": 0.925
+  },
+  "__llm_metadata": {
+    "logoSelection": {
+      "llmCalled": true,
+      "llmSucceeded": true,
+      "finalSource": "llm",
+      "rawLogoSelection": {
+        "selectedLogoIndex": -1,
+        "selectedLogoReasoning": "No suitable logo candidate matches the brand 'Yieldstreet Alternative Income Fund'. The provided candidate is labeled 'Willow Wealth logo', which does not align with the brand inferred from the page title and URL.",
+        "confidence": 0.2
+      }
+    },
+    "buttonClassification": {
+      "llmCalled": true,
+      "llmSucceeded": true
+    }
+  }
+}
