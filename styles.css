@@ -1626,7 +1626,6 @@ img {
 .full-disclosure-wrapper {
     position: relative;
     text-align: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 40px;
     margin-top: 40px;
 }
