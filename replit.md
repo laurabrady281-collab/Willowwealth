@@ -58,7 +58,9 @@ Preferred communication style: Simple, everyday language.
 - `POST /api/onboarding/accreditation` - Saves accreditation status, marks step complete
 - `POST /api/onboarding/legal-name` - Saves legal name, marks step complete
 - `GET /api/onboarding/status` - Returns current onboarding progress
-- `POST /send-verification` - Sends email verification
+- `POST /send-verification` - Sends email verification (auth-protected, rate-limited)
+- `GET /api/verify-email?token=` - Handles email verification link clicks, marks user as verified
+- `GET /api/email-verification-status` - Returns email verification status for polling
 
 ### Database Schema (PostgreSQL)
 - **users** table:
@@ -74,6 +76,7 @@ Preferred communication style: Simple, everyday language.
   - `terms_accepted` BOOLEAN DEFAULT FALSE
   - `accreditation_status` VARCHAR(255)
   - `accreditation_completed` BOOLEAN DEFAULT FALSE
+  - `email_verified` BOOLEAN DEFAULT FALSE
   - `legal_name_completed` BOOLEAN DEFAULT FALSE
   - `onboarding_completed` BOOLEAN DEFAULT FALSE
   - `created_at` TIMESTAMP

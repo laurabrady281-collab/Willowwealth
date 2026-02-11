@@ -150,10 +150,24 @@
             padding: 12px 24px;
             font-size: 14px;
             color: #856404;
-            display: flex;
+            display: none;
             align-items: flex-start;
             gap: 12px;
             z-index: 10;
+            transition: opacity 0.3s ease, max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+            overflow: hidden;
+            max-height: 200px;
+            opacity: 1;
+        }
+        .verification-banner.visible {
+            display: flex;
+        }
+        .verification-banner.hiding {
+            opacity: 0;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-bottom-width: 0;
         }
         .banner-icon {
             margin-top: 2px;
@@ -205,7 +219,7 @@
             </svg>
         </div>
         <div class="onboarding-right">
-            <div class="verification-banner" id="verify-banner" style="display: none;">
+            <div class="verification-banner" id="verify-banner">
                 <div class="banner-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 </div>
@@ -240,6 +254,9 @@
     </div>
 
     <script>
+        var verificationPollInterval = null;
+        var userEmail = null;
+
         (async function() {
             try {
                 const res = await fetch('/auth/status');
@@ -259,14 +276,61 @@
                 document.getElementById('auth-loading').style.display = 'none';
                 document.getElementById('onboarding-layout').style.display = 'flex';
 
-                if (data.user.provider === 'email') {
-                    document.getElementById('verify-banner').style.display = 'flex';
+                userEmail = data.user.email;
+
+                if (data.user.provider === 'email' && !data.user.emailVerified) {
+                    showBanner();
+                    startVerificationPolling();
                 }
             } catch (err) {
                 console.error('Auth check failed:', err);
                 window.location.href = '/login.html';
             }
         })();
+
+        function showBanner() {
+            var banner = document.getElementById('verify-banner');
+            banner.classList.add('visible');
+        }
+
+        function hideBanner() {
+            var banner = document.getElementById('verify-banner');
+            banner.classList.add('hiding');
+            setTimeout(function() {
+                banner.classList.remove('visible');
+                banner.classList.remove('hiding');
+            }, 300);
+            if (verificationPollInterval) {
+                clearInterval(verificationPollInterval);
+                verificationPollInterval = null;
+            }
+        }
+
+        var pollErrorCount = 0;
+
+        function startVerificationPolling() {
+            verificationPollInterval = setInterval(async function() {
+                try {
+                    var res = await fetch('/api/email-verification-status');
+                    if (res.status === 401) {
+                        clearInterval(verificationPollInterval);
+                        verificationPollInterval = null;
+                        return;
+                    }
+                    var data = await res.json();
+                    if (data.verified) {
+                        hideBanner();
+                    }
+                    pollErrorCount = 0;
+                } catch (err) {
+                    pollErrorCount++;
+                    if (pollErrorCount >= 5) {
+                        clearInterval(verificationPollInterval);
+                        verificationPollInterval = null;
+                    }
+                }
+            }, 5000);
+        }
 
         const form = document.getElementById('legal-name-form');
         const firstName = document.getElementById('first-name');
@@ -299,6 +363,7 @@
 
                 const data = await res.json();
                 if (data.success) {
+                    if (verificationPollInterval) clearInterval(verificationPollInterval);
                     window.location.href = data.redirect || '/dashboard.html';
                 } else {
                     errorMsg.textContent = data.error || 'Something went wrong. Please try again.';
@@ -318,20 +383,19 @@
         var resendBtn = document.getElementById('resend-btn');
         if (resendBtn) {
             resendBtn.addEventListener('click', async () => {
+                if (!userEmail) return;
                 try {
-                    const statusRes = await fetch('/auth/status');
-                    const statusData = await statusRes.json();
-                    if (statusData.authenticated && statusData.user.email) {
-                        await fetch('/send-verification', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email: statusData.user.email })
-                        });
-                        resendBtn.textContent = 'Sent!';
-                        setTimeout(() => { resendBtn.textContent = 'Resend verification.'; }, 3000);
-                    }
+                    resendBtn.textContent = 'Sending...';
+                    await fetch('/send-verification', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: userEmail })
+                    });
+                    resendBtn.textContent = 'Sent!';
+                    setTimeout(() => { resendBtn.textContent = 'Resend verification.'; }, 3000);
                 } catch (err) {
                     console.error('Resend failed:', err);
+                    resendBtn.textContent = 'Resend verification.';
                 }
             });
         }

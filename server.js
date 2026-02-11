@@ -24,6 +24,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const sessions = {};
 const oauthStates = {};
 const twoFactorCodes = {};
+const emailVerificationTokens = {};
 
 const ONBOARDING_STEPS = [
     { key: 'terms_accepted', page: '/signup/terms-review' },
@@ -179,11 +180,12 @@ function setCookie(res, name, value, maxAge) {
 async function findOrCreateUser({ email, name, picture, provider, providerId }) {
     let user = (await pool.query('SELECT * FROM users WHERE email = $1', [email])).rows[0];
     if (!user) {
+        const isOAuthProvider = (provider === 'google' || provider === 'apple');
         const result = await pool.query(
-            `INSERT INTO users (email, name, picture, provider, provider_id)
-             VALUES ($1, $2, $3, $4, $5)
+            `INSERT INTO users (email, name, picture, provider, provider_id, email_verified)
+             VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING *`,
-            [email, name, picture, provider, providerId]
+            [email, name, picture, provider, providerId, isOAuthProvider]
         );
         user = result.rows[0];
         console.log('Created new user:', email);
@@ -600,15 +602,20 @@ async function handleEmailSignup(req, res) {
 
         await createSessionForUser(res, user);
 
+        const verifyToken = crypto.randomBytes(32).toString('hex');
+        emailVerificationTokens[verifyToken] = { email, createdAt: Date.now() };
+        const verifyLink = `${BASE_URL}/api/verify-email?token=${verifyToken}`;
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Verify your WillowWealth account',
             html: `
-                <h1>Welcome to WillowWealth</h1>
-                <p>Please click the link below to verify your email address and complete your setup:</p>
-                <a href="${BASE_URL}/verify-email.html" style="background-color: #002e30; color: white; padding: 14px 28px; text-decoration: none; border-radius: 50px; display: inline-block;">Verify Email Address</a>
-                <p>If you did not create an account, please ignore this email.</p>
+                <div style="font-family: 'Inter', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
+                    <h1 style="font-size: 24px; color: #1a2b23; margin-bottom: 16px;">Welcome to WillowWealth</h1>
+                    <p style="font-size: 14px; color: #4b5563; line-height: 1.6;">Please click the button below to verify your email address and complete your setup:</p>
+                    <a href="${verifyLink}" style="background-color: #002e30; color: white; padding: 14px 28px; text-decoration: none; border-radius: 50px; display: inline-block; margin: 24px 0; font-weight: 600;">Verify Email Address</a>
+                    <p style="font-size: 12px; color: #9ca3af;">If you did not create an account, please ignore this email. This link expires in 24 hours.</p>
+                </div>
             `
         };
         transporter.sendMail(mailOptions).catch(err => {
@@ -715,7 +722,8 @@ async function handleAuthStatus(req, res) {
                 picture: user.picture,
                 provider: user.provider,
                 legalFirstName: user.legal_first_name,
-                legalLastName: user.legal_last_name
+                legalLastName: user.legal_last_name,
+                emailVerified: user.email_verified || false
             },
             onboarding: {
                 completed: user.onboarding_completed,
@@ -908,16 +916,50 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === 'POST' && urlPath === '/send-verification') {
         try {
-            const { email } = await parseBody(req);
+            const sessionData = getSessionUser(req);
+            const body = await parseBody(req);
+            var targetEmail = null;
+
+            if (sessionData) {
+                const user = await getFullUser(sessionData);
+                if (user) {
+                    targetEmail = user.email;
+                    if (user.email_verified) {
+                        return jsonResponse(res, 200, { success: true, message: 'Already verified' });
+                    }
+                }
+            }
+
+            if (!targetEmail && body.email) {
+                const existingUser = (await pool.query('SELECT id FROM users WHERE email = $1', [body.email])).rows[0];
+                if (existingUser) {
+                    targetEmail = body.email;
+                }
+            }
+
+            if (!targetEmail) {
+                return jsonResponse(res, 400, { success: false, error: 'Email not found' });
+            }
+
+            const recentTokens = Object.values(emailVerificationTokens).filter(t => t.email === targetEmail && Date.now() - t.createdAt < 60000);
+            if (recentTokens.length > 0) {
+                return jsonResponse(res, 429, { success: false, error: 'Please wait before requesting another email' });
+            }
+
+            const token = crypto.randomBytes(32).toString('hex');
+            emailVerificationTokens[token] = { email: targetEmail, createdAt: Date.now() };
+            const verifyLink = `${BASE_URL}/api/verify-email?token=${token}`;
             const mailOptions = {
                 from: process.env.EMAIL_USER,
-                to: email,
+                to: targetEmail,
                 subject: 'Verify your WillowWealth account',
                 html: `
-                    <h1>Welcome to WillowWealth</h1>
-                    <p>Please click the link below to verify your email address and complete your setup:</p>
-                    <a href="${BASE_URL}/verify-email.html" style="background-color: #002e30; color: white; padding: 14px 28px; text-decoration: none; border-radius: 50px; display: inline-block;">Verify Email Address</a>
-                    <p>If you did not create an account, please ignore this email.</p>
+                    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
+                        <h1 style="font-size: 24px; color: #1a2b23; margin-bottom: 16px;">Welcome to WillowWealth</h1>
+                        <p style="font-size: 14px; color: #4b5563; line-height: 1.6;">Please click the button below to verify your email address and complete your setup:</p>
+                        <a href="${verifyLink}" style="background-color: #002e30; color: white; padding: 14px 28px; text-decoration: none; border-radius: 50px; display: inline-block; margin: 24px 0; font-weight: 600;">Verify Email Address</a>
+                        <p style="font-size: 12px; color: #9ca3af;">If you did not create an account, please ignore this email. This link expires in 24 hours.</p>
+                    </div>
                 `
             };
             await transporter.sendMail(mailOptions);
@@ -925,6 +967,50 @@ const server = http.createServer(async (req, res) => {
         } catch (error) {
             console.error('Email error:', error);
             jsonResponse(res, 500, { success: false, error: error.message });
+        }
+        return;
+    }
+
+    if (req.method === 'GET' && urlPath === '/api/verify-email') {
+        try {
+            const urlParams = new URL(req.url, BASE_URL).searchParams;
+            const token = urlParams.get('token');
+            if (!token || !emailVerificationTokens[token]) {
+                res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-cache' });
+                res.end(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Verification Failed</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"></head><body style="font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f8fafb;"><div style="text-align:center;max-width:400px;padding:40px;"><h1 style="color:#dc2626;font-size:24px;">Verification Failed</h1><p style="color:#64748b;">This verification link is invalid or has expired.</p><a href="/legal-name.html" style="color:#002e30;font-weight:600;">Return to your account</a></div></body></html>`);
+                return;
+            }
+            const tokenData = emailVerificationTokens[token];
+            const elapsed = Date.now() - tokenData.createdAt;
+            if (elapsed > 24 * 60 * 60 * 1000) {
+                delete emailVerificationTokens[token];
+                res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-cache' });
+                res.end(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Link Expired</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"></head><body style="font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f8fafb;"><div style="text-align:center;max-width:400px;padding:40px;"><h1 style="color:#dc2626;font-size:24px;">Link Expired</h1><p style="color:#64748b;">This verification link has expired. Please request a new one.</p><a href="/legal-name.html" style="color:#002e30;font-weight:600;">Return to your account</a></div></body></html>`);
+                return;
+            }
+            await pool.query('UPDATE users SET email_verified = TRUE, updated_at = NOW() WHERE email = $1', [tokenData.email]);
+            delete emailVerificationTokens[token];
+            res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-cache' });
+            res.end(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Email Verified</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"></head><body style="font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f8fafb;"><div style="text-align:center;max-width:400px;padding:40px;"><div style="width:64px;height:64px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><h1 style="color:#1a2b23;font-size:24px;">Email Verified!</h1><p style="color:#64748b;">Your email address has been successfully verified.</p><a href="/legal-name.html" style="display:inline-block;background:#002e30;color:white;padding:14px 28px;border-radius:50px;text-decoration:none;font-weight:600;margin-top:16px;">Continue Setup</a></div></body></html>`);
+        } catch (error) {
+            console.error('Email verification error:', error);
+            res.writeHead(500, { 'Content-Type': 'text/html' });
+            res.end('Verification failed. Please try again.');
+        }
+        return;
+    }
+
+    if (req.method === 'GET' && urlPath === '/api/email-verification-status') {
+        const sessionData = getSessionUser(req);
+        if (!sessionData) {
+            return jsonResponse(res, 401, { verified: false });
+        }
+        try {
+            const result = await pool.query('SELECT email_verified FROM users WHERE id = $1', [sessionData.userId]);
+            const verified = result.rows[0]?.email_verified || false;
+            jsonResponse(res, 200, { verified });
+        } catch (error) {
+            jsonResponse(res, 500, { verified: false });
         }
         return;
     }
