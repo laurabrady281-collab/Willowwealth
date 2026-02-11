@@ -32,9 +32,9 @@ img {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1800px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 60px;
 }
 
 /* Header */
@@ -52,8 +52,8 @@ img {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 40px;
-    max-width: 1400px;
+    padding: 16px 60px;
+    max-width: 1800px;
     margin: 0 auto;
 }
 
@@ -314,7 +314,8 @@ img {
 
 /* Hero Section */
 .hero {
-    margin: 110px 20px 40px;
+    margin: 110px 0 40px;
+    padding: 0 20px;
 }
 
 .hero-container {
@@ -328,9 +329,7 @@ img {
     border-radius: 24px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     background: url('images/landing/hero-bg.jpeg') center bottom / cover no-repeat;
-    max-width: 1440px;
-    width: 98%;
-    margin: 0 auto;
+    width: 100%;
 }
 
 .hero-bg {
@@ -421,8 +420,6 @@ img {
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
 }
 
 .feature-card {
@@ -497,7 +494,6 @@ img {
     padding: 100px 0;
     background-color: #f4f7f7;
     text-align: center;
-    border-radius: 40px;
 }
 
 .section-label {
@@ -694,9 +690,7 @@ img {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 32px;
-    max-width: 1600px;
-    width: 98%;
-    margin: 0 auto;
+    width: 100%;
 }
 
 .feature-box {
@@ -1356,7 +1350,6 @@ img {
     padding: 120px 0;
     background: #335859;
     text-align: center;
-    border-radius: 40px 40px 0 0;
     margin-top: 40px;
 }
 
