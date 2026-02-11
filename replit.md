@@ -32,15 +32,24 @@ Preferred communication style: Simple, everyday language.
 - **Email Verification**: Uses nodemailer with Gmail transporter (EMAIL_USER, EMAIL_PASS env vars)
 - **Session Management**: In-memory session store with HttpOnly cookies, 24-hour expiry
 - **Onboarding Enforcement**: Server-side middleware checks onboarding status on protected pages; redirects to correct step
+- **2FA Enforcement**: After onboarding complete, users must set up 2FA before accessing dashboard
 
 ### Onboarding System
 - **Sequential Steps**: Defined as ordered array `ONBOARDING_STEPS` in server.js
 - **Current Steps**: `terms_accepted` → `/signup/terms-review` → `accreditation_completed` → `/signup/accreditation` → `legal_name_completed` → `/legal-name.html`
-- **Server Enforcement**: Protected pages check auth + onboarding status, redirect to correct step
-- **Database Fields**: `terms_accepted`, `accreditation_completed`, `accreditation_status`, `legal_name_completed`, `onboarding_completed` on users table
-- **Clean URL Routing**: `/signup/terms-review` and `/signup/accreditation` map to HTML files in `/signup/` directory
-- **Resume Logic**: On login, user is redirected to their next incomplete onboarding step
+- **Post-Onboarding**: After all steps complete → 2FA setup at `/login/twofa` → dashboard
+- **Server Enforcement**: Protected pages check auth + onboarding status + 2FA status, redirect to correct step
+- **Database Fields**: `terms_accepted`, `accreditation_completed`, `accreditation_status`, `legal_name_completed`, `onboarding_completed`, `two_factor_enabled` on users table
+- **Clean URL Routing**: `/signup/terms-review`, `/signup/accreditation`, and `/login/twofa` map to HTML files
+- **Resume Logic**: On login, user is redirected to their next incomplete onboarding step or 2FA setup
 - **Extensible**: Add new steps to `ONBOARDING_STEPS` array with a `key` and `page` property
+
+### Two-Factor Authentication Setup
+- **Page**: `/login/twofa` - 2FA method selection (Authenticator or Text/SMS)
+- **Flow**: After onboarding complete → 2FA setup required → then dashboard access
+- **Enforcement**: Server redirects dashboard access to 2FA page if `two_factor_enabled` is false
+- **API**: `POST /api/2fa/setup` marks 2FA as complete
+- **Returning Users**: If 2FA already enabled, skip setup page entirely
 
 ### Auth Routes
 - `GET /auth/google?mode=login|signup` - Initiates Google OAuth flow
@@ -61,6 +70,7 @@ Preferred communication style: Simple, everyday language.
 - `POST /send-verification` - Sends email verification (auth-protected, rate-limited)
 - `GET /api/verify-email?token=` - Handles email verification link clicks, marks user as verified
 - `GET /api/email-verification-status` - Returns email verification status for polling
+- `POST /api/2fa/setup` - Marks 2FA as complete (requires auth, accepts method: 'authenticator' or 'sms')
 
 ### Database Schema (PostgreSQL)
 - **users** table:
@@ -77,6 +87,7 @@ Preferred communication style: Simple, everyday language.
   - `accreditation_status` VARCHAR(255)
   - `accreditation_completed` BOOLEAN DEFAULT FALSE
   - `email_verified` BOOLEAN DEFAULT FALSE
+  - `two_factor_enabled` BOOLEAN DEFAULT FALSE
   - `legal_name_completed` BOOLEAN DEFAULT FALSE
   - `onboarding_completed` BOOLEAN DEFAULT FALSE
   - `created_at` TIMESTAMP

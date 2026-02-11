@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <title>Two-Factor Authentication | WillowWealth</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f8f8f8;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .twofa-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px 0;
+        }
+        .twofa-logo {
+            margin-bottom: 40px;
+        }
+        .twofa-logo img {
+            height: 28px;
+        }
+        .twofa-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #002e30;
+            text-align: center;
+            margin-bottom: 8px;
+            max-width: 400px;
+            line-height: 1.3;
+        }
+        .twofa-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .twofa-options {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        .twofa-option {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            padding: 20px 24px;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .twofa-option:first-child {
+            border-radius: 8px 8px 0 0;
+            border-bottom: none;
+        }
+        .twofa-option:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+        .twofa-option:hover {
+            border-color: #002e30;
+            z-index: 1;
+            position: relative;
+        }
+        .twofa-option-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a2b23;
+            margin-bottom: 4px;
+        }
+        .twofa-option-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+        .twofa-support {
+            margin-top: 32px;
+        }
+        .twofa-support a {
+            color: #002e30;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .twofa-support a:hover {
+            text-decoration: underline;
+        }
+        .twofa-recaptcha {
+            text-align: center;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 24px;
+            line-height: 1.5;
+        }
+        .twofa-recaptcha a {
+            color: #9ca3af;
+            text-decoration: underline;
+        }
+        .twofa-footer {
+            text-align: center;
+            padding: 24px 20px;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: auto;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            font-size: 16px;
+            color: #64748b;
+        }
+        @media (max-width: 480px) {
+            .twofa-container {
+                padding: 32px 16px 0;
+            }
+            .twofa-title {
+                font-size: 20px;
+            }
+            .twofa-options {
+                max-width: 100%;
+            }
+            .twofa-option {
+                padding: 16px 20px;
+            }
+        }
+    </style>
+<style>*{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none}img{pointer-events:none;-webkit-user-drag:none;-khtml-user-drag:none;-moz-user-drag:none;-o-user-drag:none;user-drag:none}input,textarea,select,[contenteditable]{-webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text}</style>
+<script src="/js/protect.js" defer></script>
+</head>
+<body>
+    <div id="page-loader" class="page-loader active">
+        <div class="loader-content">
+            <svg class="loader-w" viewBox="0 0 100 100">
+                <path d="M20 30 L40 70 L50 50 L60 70 L80 30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+    </div>
+    <div id="auth-loading" class="loading-overlay">Loading...</div>
+
+    <div class="twofa-container" id="twofa-content" style="display: none;">
+        <div class="twofa-logo">
+            <a href="/">
+                <img src="/images/auth/logo.svg" alt="WillowWealth">
+            </a>
+        </div>
+
+        <h1 class="twofa-title">Protect your account with two-factor authentication</h1>
+        <p class="twofa-subtitle">Which method would you like to use?</p>
+
+        <div class="twofa-options">
+            <div class="twofa-option" id="option-authenticator">
+                <div class="twofa-option-title">Authenticator</div>
+                <div class="twofa-option-desc">Use an authentication app of your choice to receive authentication codes</div>
+            </div>
+            <div class="twofa-option" id="option-sms">
+                <div class="twofa-option-title">Text/SMS</div>
+                <div class="twofa-option-desc">Receive verification codes via text message</div>
+            </div>
+        </div>
+
+        <div class="twofa-support">
+            <a href="javascript:void(0)" onclick="if(window.Intercom){Intercom('show')}">Contact support</a>
+        </div>
+
+        <div class="twofa-recaptcha">
+            This site is protected by reCAPTCHA and the<br>
+            Google <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+        </div>
+    </div>
+
+    <footer class="twofa-footer">
+        Copyright &copy; 2026 Willow Wealth Inc.
+    </footer>
+
+    <script>
+        (async function() {
+            try {
+                var res = await fetch('/auth/status');
+                var data = await res.json();
+
+                if (!data.authenticated) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                if (data.user.twoFactorEnabled) {
+                    window.location.href = '/dashboard.html';
+                    return;
+                }
+
+                if (!data.onboarding || !data.onboarding.completed) {
+                    var dest = data.onboarding && data.onboarding.nextStep ? data.onboarding.nextStep : '/signup/terms-review';
+                    window.location.href = dest;
+                    return;
+                }
+
+                document.getElementById('auth-loading').style.display = 'none';
+                document.getElementById('twofa-content').style.display = 'flex';
+            } catch (err) {
+                console.error('Auth check failed:', err);
+                window.location.href = '/login.html';
+            }
+        })();
+
+        async function complete2FA(method) {
+            try {
+                var res = await fetch('/api/2fa/setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ method: method })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    window.location.href = data.redirect || '/dashboard.html';
+                } else {
+                    alert(data.error || 'Something went wrong. Please try again.');
+                }
+            } catch (err) {
+                console.error('2FA setup error:', err);
+                alert('Something went wrong. Please try again.');
+            }
+        }
+
+        document.getElementById('option-authenticator').addEventListener('click', function() {
+            complete2FA('authenticator');
+        });
+
+        document.getElementById('option-sms').addEventListener('click', function() {
+            complete2FA('sms');
+        });
+    </script>
+
+    <script>
+      window.intercomSettings = {
+        api_base: "https://api-iam.intercom.io",
+        app_id: "ub97p16r",
+      };
+    </script>
+    <script>
+      (function () {
+        var w = window;
+        var ic = w.Intercom;
+        if (typeof ic === "function") {
+          ic("reattach_activator");
+          ic("update", w.intercomSettings);
+        } else {
+          var d = document;
+          var i = function () { i.c(arguments); };
+          i.q = [];
+          i.c = function (args) { i.q.push(args); };
+          w.Intercom = i;
+          var l = function () {
+            var s = d.createElement("script");
+            s.type = "text/javascript";
+            s.async = true;
+            s.src = "https://widget.intercom.io/widget/ub97p16r";
+            var x = d.getElementsByTagName("script")[0];
+            x.parentNode.insertBefore(s, x);
+          };
+          if (document.readyState === "complete") { l(); }
+          else if (w.attachEvent) { w.attachEvent("onload", l); }
+          else { w.addEventListener("load", l, false); }
+        }
+      })();
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var loader = document.getElementById('page-loader');
+            if (loader) {
+                loader.classList.remove('active');
+                setTimeout(function() { loader.style.display = 'none'; }, 300);
+            }
+        });
+        document.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                var href = this.getAttribute('href');
+                var target = this.getAttribute('target');
+                if (href && !href.startsWith('#') && !href.startsWith('javascript') && target !== '_blank') {
+                    var loader = document.getElementById('page-loader');
+                    if (loader) { loader.style.display = 'flex'; setTimeout(function() { loader.classList.add('active'); }, 10); }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

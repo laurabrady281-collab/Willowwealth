@@ -213,6 +213,7 @@ function getNextOnboardingStep(user) {
 function getOnboardingRedirect(user) {
     const nextStep = getNextOnboardingStep(user);
     if (nextStep) return nextStep.page;
+    if (!user.two_factor_enabled) return '/login/twofa';
     return '/dashboard.html';
 }
 
@@ -723,7 +724,8 @@ async function handleAuthStatus(req, res) {
                 provider: user.provider,
                 legalFirstName: user.legal_first_name,
                 legalLastName: user.legal_last_name,
-                emailVerified: user.email_verified || false
+                emailVerified: user.email_verified || false,
+                twoFactorEnabled: user.two_factor_enabled || false
             },
             onboarding: {
                 completed: user.onboarding_completed,
@@ -860,8 +862,9 @@ async function handleLogout(req, res) {
     redirect(res, '/index.html');
 }
 
-const PROTECTED_PAGES = ['/dashboard.html', '/legal-name.html', '/mobile-phone.html', '/signup/terms-review', '/signup/accreditation', '/signup/terms-review.html', '/signup/accreditation.html'];
+const PROTECTED_PAGES = ['/dashboard.html', '/legal-name.html', '/mobile-phone.html', '/signup/terms-review', '/signup/accreditation', '/signup/terms-review.html', '/signup/accreditation.html', '/login/twofa', '/login/twofa.html'];
 const ONBOARDING_PAGES = ['/legal-name.html', '/mobile-phone.html', '/signup/terms-review', '/signup/accreditation', '/signup/terms-review.html', '/signup/accreditation.html'];
+const TWOFA_PAGES = ['/login/twofa', '/login/twofa.html'];
 
 const server = http.createServer(async (req, res) => {
     const urlPath = req.url.split('?')[0];
@@ -912,6 +915,30 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === 'GET' && urlPath === '/api/onboarding/status') {
         return handleOnboardingStatus(req, res);
+    }
+
+    if (req.method === 'POST' && urlPath === '/api/2fa/setup') {
+        try {
+            const sessionData = getSessionUser(req);
+            if (!sessionData) {
+                return jsonResponse(res, 401, { success: false, error: 'Not authenticated' });
+            }
+            const { method } = await parseBody(req);
+            if (!method || !['authenticator', 'sms'].includes(method)) {
+                return jsonResponse(res, 400, { success: false, error: 'Invalid 2FA method' });
+            }
+            await pool.query(
+                'UPDATE users SET two_factor_enabled = TRUE, updated_at = NOW() WHERE id = $1',
+                [sessionData.userId]
+            );
+            const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sessionData.userId])).rows[0];
+            const dest = getOnboardingRedirect(user);
+            jsonResponse(res, 200, { success: true, redirect: dest });
+        } catch (error) {
+            console.error('2FA setup error:', error);
+            jsonResponse(res, 500, { success: false, error: 'An error occurred' });
+        }
+        return;
     }
 
     if (req.method === 'POST' && urlPath === '/send-verification') {
@@ -1033,7 +1060,22 @@ const server = http.createServer(async (req, res) => {
             return redirect(res, correctPage);
         }
 
+        if (urlPath === '/dashboard.html' && user.onboarding_completed && !user.two_factor_enabled) {
+            return redirect(res, '/login/twofa');
+        }
+
+        if (TWOFA_PAGES.includes(urlPath) && user.two_factor_enabled) {
+            return redirect(res, '/dashboard.html');
+        }
+
+        if (TWOFA_PAGES.includes(urlPath) && !user.onboarding_completed) {
+            return redirect(res, correctPage);
+        }
+
         if (ONBOARDING_PAGES.includes(urlPath) && user.onboarding_completed) {
+            if (!user.two_factor_enabled) {
+                return redirect(res, '/login/twofa');
+            }
             return redirect(res, '/dashboard.html');
         }
 
@@ -1046,7 +1088,8 @@ const server = http.createServer(async (req, res) => {
 
     const cleanRoutes = {
         '/signup/terms-review': '/signup/terms-review.html',
-        '/signup/accreditation': '/signup/accreditation.html'
+        '/signup/accreditation': '/signup/accreditation.html',
+        '/login/twofa': '/login/twofa.html'
     };
     let filePath = urlPath === '/' ? '/index.html' : (cleanRoutes[urlPath] || urlPath);
     filePath = path.join(__dirname, filePath);
