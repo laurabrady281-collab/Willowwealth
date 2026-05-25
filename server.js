@@ -1246,11 +1246,16 @@ const server = http.createServer(async (req, res) => {
             });
 
             const otpauthUrl = totp.toString();
+            console.log('[2FA] Generated TOTP secret (length):', secret.length);
+            console.log('[2FA] Generated otpauth URL:', otpauthUrl);
             const qrDataUrl = await QRCode.toDataURL(otpauthUrl, { width: 200, margin: 2 });
+            console.log('[2FA] QR code generated, data URL length:', qrDataUrl.length, 'starts with:', qrDataUrl.substring(0, 30));
 
             jsonResponse(res, 200, {
                 success: true,
                 qrCode: qrDataUrl,
+                qrCodeDataURL: qrDataUrl,
+                manualEntryKey: secret,
                 otpauthUrl: otpauthUrl,
                 secret: secret
             });
